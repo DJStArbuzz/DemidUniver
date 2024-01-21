@@ -1,0 +1,26 @@
+#include <iostream>
+#include <vector>
+#include <cmath>
+#include <algorithm>
+
+using namespace std;
+
+int solve(int n, int m){
+    int res = 0;
+    while (n != m) {
+        m -= n;
+        res++;
+        int c = m;
+        m = max(n, m);
+        n = min(n, c);
+    }
+    return res + 1;
+}
+
+int main()
+{
+    int a, b;
+    cin >> a >> b;
+    int res = solve(min(a, b), max(a, b));
+    cout << res;
+}
