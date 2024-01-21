@@ -1,0 +1,32 @@
+#include<iostream>;
+#include<vector>
+#include<numeric>;
+
+using namespace std;
+
+int main() 
+{
+	int n, res = 0;
+	int l = 0, r = 0;
+	int numFirst, numSecond;
+	vector <int> lV;
+	vector <int> rV;
+
+	cin >> n;
+	for (int i = 0; i < n; i++) {
+		cin >> numFirst >> numSecond;
+		l += numFirst;
+		r += numSecond;
+		lV.push_back(numFirst);
+		rV.push_back(numSecond);
+	}
+
+	int ab = abs(l - r);
+	for (int i = 0; i < n; i++) {
+		if (abs(l - lV[i] - r + rV[i] - lV[i] + rV[i]) > ab) {
+			ab = abs(l - lV[i] - r + rV[i] - lV[i] + rV[i]);
+			res = i + 1;
+		}
+	}
+	cout << res;
+}
