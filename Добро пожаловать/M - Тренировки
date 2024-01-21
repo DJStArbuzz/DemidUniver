@@ -1,0 +1,23 @@
+#include<iostream>
+#include<vector>
+#include<cmath>
+#include<algorithm>
+
+using namespace std;
+
+int main() 
+{
+	int a, b, c, d;
+	cin >> a >> b >> c >> d;
+	int x1 = a - c;
+	int x2 = b - c;
+	if (x1 + x2 + c > 2 * d) {
+		cout << "No";
+		return 0;
+	}
+	if (x1 > d || x2 > d) {
+		cout << "No";
+		return 0;
+	}
+	cout << "Yes";
+}
