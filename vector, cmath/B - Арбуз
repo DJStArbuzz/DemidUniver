@@ -1,0 +1,20 @@
+#include<iostream>
+#include<string>
+#include<cmath>
+
+using namespace std;
+
+int main() 
+{
+	int n;
+	cin >> n;
+	string res2 = "NO";
+	for (int i = 2; i <= sqrt(n) ; i++) {
+		int res = n - i;
+		if (i % 2 == 0 && res % 2 == 0) {
+			res2 = "YES";
+			break;
+		}
+	}
+	cout << res2;
+}
