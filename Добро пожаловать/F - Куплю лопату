@@ -1,0 +1,17 @@
+#include <iostream>
+
+using namespace std;
+int main()
+{
+    int k, r;
+    int i = 1;
+    cin >> k >> r;
+    int a = k;
+    while(k % 10 != 0 && k % 10 != r)
+    {
+        i++;
+        k = a * i;
+    }
+    cout << i;
+    return 0;
+}
