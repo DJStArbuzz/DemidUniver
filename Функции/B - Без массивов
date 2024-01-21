@@ -1,0 +1,19 @@
+#include <iostream>
+#include <cmath>
+
+using namespace std;
+
+void bez_mas(int n) {
+	if (n <= 0)
+		return;
+	int k; 
+	cin >> k; 
+	bez_mas(n - 1);
+	cout << k << " ";
+}
+
+int main() {
+	int n; 
+	cin >> n; 
+	bez_mas(n);
+}
