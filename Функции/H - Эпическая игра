@@ -1,0 +1,35 @@
+#include <iostream>
+
+using namespace std;
+
+
+int nod(int a, int b)
+{
+    if (b == 0) {
+        return a;
+    }
+    else {
+        return nod(b, a % b);
+    }
+}
+
+int epic_cringe(int semen, int asemen, int n){
+    int s = 0;
+    while (n >= 0) {
+        if (s % 2 == 0) {
+            n -= nod(semen, n);
+        }
+        else {
+            n -= nod(asemen, n);
+        }
+        s++;
+    }
+    return s % 2;
+}
+
+int main() {
+	int a, b, n;
+	cin >> a >> b >> n;
+    int res = epic_cringe(a, b, n);
+	cout << res;
+}
