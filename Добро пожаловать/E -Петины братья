@@ -1,0 +1,24 @@
+#include<iostream>;
+
+using namespace std;
+
+int main() 
+{
+	int n, mi = 10000000, ma = -1;
+	cin >> n;
+	int k = 0;
+	while (k < n) {
+		int num;
+		cin >> num;
+		if (mi > num) {
+			mi = num;
+		}
+		if (ma < num) {
+			ma = num;
+		}
+		k++;
+	}
+	cout << ma << " " << mi;
+
+
+}
