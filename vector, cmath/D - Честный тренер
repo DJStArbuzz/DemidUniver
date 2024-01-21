@@ -1,0 +1,27 @@
+#include<iostream>
+#include<vector>
+#include<algorithm>
+
+using namespace std;
+
+int main() 
+{
+	int n;
+	cin >> n;
+	for (int i = 0; i < n; i++) {
+		int k, res;
+		cin >> k;
+		vector<int> sp(k);
+		for (int j = 0; j < k; j++) {
+			cin >> sp[j];
+		}
+		sort(sp.begin(), sp.end());
+		res = abs(sp[k - 1] - sp[0]);
+		for (int j = 0; j < sp.size(); j++) {
+			for (int k = j + 1; k < sp.size(); k++) {
+				res = min(res, abs(sp[j] - sp[k]));
+			}
+		}
+		cout << res << "\n";
+	}
+}
