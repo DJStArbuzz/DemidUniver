@@ -1,0 +1,21 @@
+#include<iostream>
+#include<string>
+#include<algorithm>
+
+using namespace std;
+
+int main()
+{
+	string word, word2;
+	cin >> word;
+	string res;
+	word2 = word;
+	reverse(word.begin(), word.end());
+	if (word == word2) {
+		res = "Yes";
+	}
+	else {
+		res = "No";
+	}
+	cout << res;
+}
