@@ -1,0 +1,19 @@
+#include<iostream>
+
+using namespace std;
+
+int main() 
+{
+	int n, xy = 0, i = 5, k = 0;
+	cin >> n;
+	while (xy != n) {
+		if (xy + i <= n) {
+			xy += i;
+			k++;
+		}
+		else {
+			i--;
+		}
+	}
+	cout << k;
+}
