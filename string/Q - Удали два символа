@@ -1,0 +1,30 @@
+#include <iostream>
+#include <iomanip>
+#include <vector>
+#include <string>
+#include <cmath>
+#include <set>
+#include <algorithm>
+
+using namespace std;
+
+int main()
+{
+    int test;
+    cin >> test;
+
+    string s;
+    int n;
+    for (int test_id = 0; test_id < test; test_id++) {
+        cin >> n >> s;
+        int count_bad = 0;
+        
+        for (int i = 1; i < n - 1; i++){
+            if (s[i - 1] == s[i + 1]) {
+                count_bad++;
+            }
+        }
+
+        cout << s.size() - count_bad - 1 << endl;
+    }
+}
