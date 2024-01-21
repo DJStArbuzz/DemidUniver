@@ -1,0 +1,28 @@
+#include<iostream>;
+#include<string>
+
+using namespace std;
+
+int main() 
+{
+	string strok;
+	cin >> strok;
+	string gl = "AEIOUY";
+	int res = 1, step = 1;
+	for (int i = 0; i < strok.length(); i++) 
+	{
+		if (gl.find(strok[i]) ==  -1) 
+		{
+			step += 1;
+		}
+		else
+		{
+			step = 1;
+		}
+		if (step > res) 
+		{
+			res = step;
+		}
+	}
+	cout << res;
+}
