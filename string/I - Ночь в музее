@@ -1,0 +1,22 @@
+#include<iostream>
+#include<vector>
+#include<cmath>
+#include<algorithm>
+
+using namespace std;
+int main()
+{
+    string s;
+    cin >> s;
+    int sum = 0, pos = 0;
+    for (int i = 0; i < s.size(); i++) {
+        if (pos + (int)('a') <= (int)(s[i])) {
+            sum += min((int)s[i] - (int)('a') - pos, pos + 26 - ((int)s[i] - (int)('a')));
+        }
+        else {
+            sum += min(pos - ((int)s[i] - (int)('a')), 26 - pos + (int)s[i] - (int)('a'));
+        }
+        pos = (int)s[i] - (int)('a');
+    }
+    cout << sum;
+}
