@@ -1,0 +1,19 @@
+#include<iostream>;
+#include<cmath>;
+
+using namespace std;
+
+int main() 
+{
+	long long n, m, a;
+	cin >> n >> m >> a;
+	long long nA = n / a;
+	long long mA = m / a;
+	if (m % a != 0) {
+		mA++;
+	}
+	if (n % a != 0) {
+		nA++;
+	}
+	cout << mA * nA;
+}
