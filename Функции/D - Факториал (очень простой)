@@ -1,0 +1,22 @@
+#include <iostream>
+#include <vector>
+#include <cmath>
+#include <algorithm>
+
+using namespace std;
+
+long long fact(long long n){
+    long long res = 1;
+    for (int i = 1; i <= n; i++) {
+        res *= i;
+    }
+    return res;
+
+}
+int main()
+{
+    long long n;
+    cin >> n;
+    long long res = fact(n);
+    cout << res;
+}
