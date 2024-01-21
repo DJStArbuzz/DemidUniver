@@ -1,0 +1,32 @@
+#include<iostream>
+#include<vector>
+#include<cmath>
+#include<algorithm>
+
+using namespace std;
+int main()
+{
+    int t, n;
+    cin >> t;
+    for (int i = 0; i < t; ++i) {
+        cin >> n;
+        vector<int> sp;
+        int levchast = 0;
+        while (n > 0) {
+            sp.push_back(n % 10);
+            n /= 10;
+            if (sp[sp.size() - 1] == 0) {
+                levchast++;
+            }
+        }
+        reverse(sp.begin(), sp.end());
+        cout << sp.size() - levchast << endl;
+        for (int j = 0; j < sp.size(); j++) {
+            if (sp[j] != 0) {
+                cout << pow(10, sp.size() - j - 1) * sp[j] << " ";
+            }
+        }
+        cout << endl;
+    }
+
+}
