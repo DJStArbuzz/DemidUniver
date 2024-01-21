@@ -1,0 +1,26 @@
+#include <iostream>
+#include<string>
+
+using namespace std;
+
+int main()
+{
+    int n;
+    cin >> n;
+    for (int i = 0; i < n; i++) {
+        string number;
+        cin >> number;
+
+        int res = 0;
+
+        for (int j = 1; j <= number.size(); j++) {
+            res += j;}
+
+        if (number.find('1') == -1) {
+            char num = number[0];
+            int numInt = (int)num - 49;
+            res += numInt * 10;
+        }
+        cout << res << endl;
+    }
+}
