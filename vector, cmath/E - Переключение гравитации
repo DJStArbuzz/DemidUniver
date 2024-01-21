@@ -1,0 +1,27 @@
+#include<iostream>
+#include<vector>
+#include<algorithm>
+
+using namespace std;
+
+int main()
+{
+	int n;
+	cin >> n;
+	vector<int> sp(n);
+	for (int i = 0; i < n; i++) {
+		cin >> sp[i];
+	}
+	for (int i = 0; i < n; i++) {
+		for (int j = i + 1; j < n; j++) {
+			if (sp[i] > sp[j]) {
+				int abacaba = sp[j];
+				sp[j] = sp[i];
+				sp[i] = abacaba;
+			}
+		}
+	}
+	for (int i = 0; i < n; i++) {
+		cout << sp[i] << " ";
+	}
+}
