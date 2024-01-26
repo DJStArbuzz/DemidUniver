@@ -1,0 +1,31 @@
+#include <iostream>
+#include <cmath>
+#include <vector>
+#include <string>
+#include <algorithm>
+
+using namespace std;
+
+int main() {
+    long long n, k, resSum = 0;
+    cin >> n >> k;
+
+    vector<long long> list(n);
+    for (int i = 0; i < n; i++) {
+        cin >> list[i];
+    }
+
+    for (int i = 0; i < k; i++) {
+        resSum += list[i];
+    }
+
+    long long tmpSum = resSum;
+    for (int i = k; i < n; i++) {
+        tmpSum += list[i] - list[i - k];
+        resSum = max(resSum, tmpSum);
+    }
+
+    cout << resSum;
+
+    return 0;
+}
