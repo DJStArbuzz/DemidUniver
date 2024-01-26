@@ -1,0 +1,48 @@
+#include <iostream>
+#include <cmath>
+#include <vector>
+#include <string>
+#include <algorithm>
+
+using namespace std;
+
+int main() {
+    int n;
+    cin >> n;
+
+    vector<int> list(n);
+    for (int i = 0; i < n; i++) {
+        cin >> list[i];
+    }
+
+    int resI = 0;
+    int resJ = 1;
+    int resRaz = list[resJ] - list[resI];
+
+    int left = 0;
+    int right = 1;
+
+    while (right < n) {
+        int tmpRaz = list[right] - list[left];
+
+        if (tmpRaz > resRaz) {
+            resRaz = tmpRaz;
+            resI = left;
+            resJ = right;
+        }
+        else if (tmpRaz == resRaz) {
+            if (right < resJ || (left < resI && right == resJ)) {
+                resI = left;
+                resJ = right;
+            }
+        }
+
+        if (list[right] < list[left]) {
+            left = right;
+        }
+        right++;
+    }
+
+    cout << resI + 1 << " " << resJ + 1;
+    return 0;
+}
