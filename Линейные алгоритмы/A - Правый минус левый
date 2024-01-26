@@ -1,4 +1,3 @@
-Tl
 #include <iostream>
 #include <cmath>
 #include <vector>
@@ -20,22 +19,28 @@ int main() {
     int resJ = 1;
     int resRaz = list[resJ] - list[resI];
 
-    for (int i = 0; i < n - 1; i++) {
-        for (int j = i + 1; j < n; j++) {
-            int tmpRaz = list[j] - list[i];
+    int left = 0;
+    int right = 1;
 
-            if (tmpRaz > resRaz) {
-                resRaz = tmpRaz;
-                resI = i;
-                resJ = j;
-            }
-            else if (tmpRaz == resRaz) {
-                if (j < resJ || (i < resI && j == resJ)) {
-                    resI = i;
-                    resJ = j;
-                }
+    while (right < n) {
+        int tmpRaz = list[right] - list[left];
+
+        if (tmpRaz > resRaz) {
+            resRaz = tmpRaz;
+            resI = left;
+            resJ = right;
+        }
+        else if (tmpRaz == resRaz) {
+            if (right < resJ || (left < resI && right == resJ)) {
+                resI = left;
+                resJ = right;
             }
         }
+
+        if (list[right] < list[left]) {
+            left = right;
+        }
+        right++;
     }
 
     cout << resI + 1 << " " << resJ + 1;
