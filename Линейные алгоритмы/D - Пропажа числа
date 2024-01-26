@@ -1,0 +1,20 @@
+#include <iostream>
+#include <cmath>
+#include <vector>
+#include <string>
+#include <algorithm>
+
+using namespace std;
+
+int main() {
+    vector<int> listInput(199);
+    vector<int> listCheck(100, 0 );
+
+    for (int i = 0; i < 199; i++) {
+        cin >> listInput[i];
+        listCheck[listInput[i] - 1]++;
+    }
+
+    auto res = find(listCheck.begin(), listCheck.end(), 1);
+    cout << res - begin(listCheck) + 1;
+}
