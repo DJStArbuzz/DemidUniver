@@ -1,0 +1,56 @@
+#include <iostream>
+#include <cmath>
+#include <vector>
+#include <string>
+#include <set>
+#include <algorithm>
+
+using namespace std;
+
+int main() {
+	int n;
+	cin >> n;
+
+	vector<int> list(n);
+	for (int i = 0; i < n; i++) {
+		cin >> list[i];
+	}
+
+	int sum1 = 0, sum2 = 0;
+	int t1 = 0, t2 = n - 1;
+	bool flag = true;
+
+	while (t1 != t2) {
+		if (list[t1] > list[t2]) {
+			if (flag) {
+				sum1 += list[t1];
+				flag = false;
+			}
+			else {
+				sum2 += list[t1];
+				flag = true;
+			}
+			t1++;
+		}
+		else {
+			if (flag) {
+				sum1 += list[t2];
+				flag = false;
+			}
+			else {
+				sum2 += list[t2];
+				flag = true;
+			}
+			t2--;
+		}
+	}
+
+	if (flag) {
+		sum1 += list[t2];
+	}
+	else {
+		sum2 += list[t2];
+	}
+	cout << sum1 << " " << sum2;
+	return 0;
+}
