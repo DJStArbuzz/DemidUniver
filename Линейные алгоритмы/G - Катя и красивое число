@@ -1,0 +1,20 @@
+#include <iostream>
+#include <cmath>
+#include <vector>
+#include <string>
+#include <algorithm>
+
+using namespace std;
+
+int main() {
+    string num;
+    cin >> num;
+
+    int res = 0;
+    res += count(num.begin(), num.end(), '8') * 2;
+    res += count(num.begin(), num.end(), '0');
+    res += count(num.begin(), num.end(), '9');
+    res += count(num.begin(), num.end(), '6');
+    res += count(num.begin(), num.end(), '4');
+    cout << res;
+}
