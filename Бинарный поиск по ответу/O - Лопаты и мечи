@@ -1,0 +1,22 @@
+#include <iostream>
+#include <vector>
+#include <iomanip>
+#include <string>
+#include <cmath>
+#include <algorithm> 
+
+using namespace std;
+
+int main() {
+	int n;
+	cin >> n;
+	for (int i = 0; i < n; i++) {
+		int a, b;
+		cin >> a >> b;
+
+		int tmp_1 = min(a, b);
+		int tmp_2 = (a + b) / 3;
+
+		cout << min(tmp_1, tmp_2) << endl;
+	}
+}
