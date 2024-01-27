@@ -1,0 +1,68 @@
+#include <iostream>
+#include <cmath>
+#include <vector>
+#include <string>
+#include <set>
+#include <algorithm>
+
+using namespace std;
+
+int main() {
+	int n, p, q;
+	cin >> n >> p >> q;
+
+	long long a = q;
+	long long b = p - q;
+
+	vector<long long> A(n);
+	vector<long long> B(n);
+	for (int i = 0; i < n; i++) {
+		cin >> A[i];
+	}
+
+	long long l = 1;
+	long long r = 1e9 + 5;
+	long long mid;
+	long long count = 0;
+
+	if (b > 0) {
+		while (r - l > 1) 
+		{
+			mid = (r + l) / 2;
+			count = 0;
+
+			for (int i = 0; i < n; i++) 
+			{
+				B[i] = A[i] - mid * a;
+				if (B[i] > 0) 
+				{
+					count += B[i] / b;
+					if (B[i] % b != 0) 
+					{
+						count++;
+					}
+				}
+			}
+
+			if (count < mid) {
+				r = mid;
+			}
+			else {
+				l = mid;
+			}
+		}
+
+		cout << l;
+	}
+	else {
+		for (int i = 0; i < n; i++) {
+			long long z = A[i] / a;
+			if (A[i] % a != 0) {
+				z++;
+			}
+			count = max(count, z);
+		}
+		cout << count;
+	}
+	return 0;
+}
