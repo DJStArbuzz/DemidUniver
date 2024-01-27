@@ -1,0 +1,45 @@
+#include <iostream>
+#include <cmath>
+#include <vector>
+#include <string>
+#include <set>
+#include <algorithm>
+#include <cstdio>
+
+using namespace std;
+
+int main() {
+	int n, k;
+	cin >> n >> k;
+
+	vector<pair<int, int>> list(n);
+	for (int i = 0; i < n; i++) {
+		cin >> list[i].first;
+		list[i].second = i + 1;
+	}
+
+	sort(list.begin(), list.end());
+
+	vector<int> res;
+	for (int i = 0; i < n; i++) {
+		if (k - list[i].first >= 0) {
+			k -= list[i].first;
+			res.push_back(list[i].second);
+		}
+		else {
+			break;
+		}
+	}
+
+	if (res.size() != 0) {
+		cout << res.size() << endl;
+		for (int i = 0; i < res.size(); i++) {
+			cout << res[i] << " ";
+		}
+	}
+	else {
+		cout << 0;
+	}
+
+	return 0;
+}
