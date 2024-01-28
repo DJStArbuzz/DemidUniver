@@ -1,0 +1,48 @@
+#include <iostream>
+#include <cmath>
+#include <vector>
+#include <string>
+#include <set>
+#include <algorithm>
+
+using namespace std;
+
+int solve(vector<int>& list, int n) {
+	bool flag = true;
+	for (int i = 0; i < n - 1; i++) {
+		if (list[i] > list[i + 1]) {
+			flag = false;
+			break;
+		}
+	}
+
+	if (flag) {
+		return n;
+	}
+	else {
+		int tmpInt = 0;
+		n = n / 2;
+		vector<int> listTmp(n);
+
+		for (int i = n; i < n * 2; i++) {
+			listTmp[tmpInt] = list[i];
+			tmpInt++;
+		}
+
+		return max(solve(list, n), solve(listTmp, n));
+	}
+}
+
+int main() {
+	int n;
+	cin >> n;
+
+	vector<int> list(n);
+	for (int i = 0; i < n; i++) {
+		cin >> list[i];
+	}
+
+	int res = solve(list, n);
+	cout << res;
+	return 0;
+}
