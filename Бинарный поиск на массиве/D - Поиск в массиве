@@ -1,0 +1,36 @@
+#include <iostream>
+#include <cmath>
+#include <vector>
+#include <string>
+#include <set>
+#include <algorithm>
+
+using namespace std;
+
+int main()
+{
+    int n, q;
+    cin >> n >> q;
+
+    vector<int> list(n);
+    for (int i = 0; i < n; i++) {
+        cin >> list[i];
+    }
+    sort(list.begin(), list.end());
+
+    for (int i = 0; i < q; i++) {
+        int quest;
+        cin >> quest;
+
+        if (!binary_search(list.begin(), list.end(), quest)) {
+            cout << -1 << endl;
+        }
+        else {
+            auto first = lower_bound(list.begin(), list.end(), quest);
+            int res = first - list.begin();
+            cout << res + 1 << endl;
+        }
+    }
+
+    return 0;
+}
