@@ -1,0 +1,31 @@
+#include <iostream>
+#include <vector>
+#include <cmath>
+#include <string>
+#include <algorithm>
+#include <iomanip>
+
+using namespace std;
+
+int main()
+{
+    long long a;
+    cin >> a;
+
+    for (long long i = 2; i * i <= a; i++) {
+        while (a % i == 0) {
+            if (a / i != 1) {
+                cout << i << '*';
+            }
+            else {
+                cout << i;
+            }
+
+            a /= i;
+        }
+    }
+
+    if (a != 1) 
+        cout << a;
+    return 0;
+}
