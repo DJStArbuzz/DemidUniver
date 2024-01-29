@@ -1,0 +1,21 @@
+#include <iostream>
+#include <vector>
+#include <cmath>
+#include <string>
+#include <algorithm>
+#include <iomanip>
+
+using namespace std;
+
+int main()
+{
+    int n;
+    cin >> n;
+
+    for (int i = 7; i >= 0; i--) {
+        int tmp = 1 << i;
+        cout << ((n & tmp) != 0);
+    }
+
+    return 0;
+}
