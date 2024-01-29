@@ -1,0 +1,18 @@
+#include <iostream>
+#include <vector>
+#include <cmath>
+#include <string>
+#include <algorithm>
+#include <iomanip>
+
+using namespace std;
+
+int main()
+{
+    int A, i;
+    cin >> A >> i;
+
+
+    cout << (A & ~(1 << i));
+    return 0;
+}
