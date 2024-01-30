@@ -1,0 +1,25 @@
+#include <iostream>
+#include <vector>
+#include <cmath>
+#include <string>
+#include <algorithm>
+#include <iomanip>
+
+using namespace std;
+
+int main()
+{
+    int t;
+    cin >> t;
+
+    for (int test = 0; test < t; test++) {
+        long long res;
+        int n, m;
+        cin >> n >> m;
+
+        res = n * (m / 2);
+        cout << res << endl;
+
+    }
+    return 0;
+}
