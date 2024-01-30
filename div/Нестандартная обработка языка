@@ -1,0 +1,93 @@
+#include <iostream>
+#include <vector>
+#include <string>
+#include <set>
+#include <algorithm>
+#include <cmath>
+
+using namespace std;
+
+int main()
+{
+    int n;
+    cin >> n;
+    for (int k = 0; k < n; k++)
+    {
+        int size;
+        cin >> size;
+
+        string s, tmpStr;
+        cin >> s;
+
+        int charTmp = 0, chet = 0;
+
+        for (int i = 0; i < size; i++) {
+            if (size - 3 > i) {
+                if (s[i + 3] == 'b' || s[i + 3] == 'c' || s[i + 3] == 'd')
+                {
+                    tmpStr.push_back(s[i]);
+                    tmpStr.push_back(s[i + 1]);
+                    tmpStr.push_back(s[i + 2]);
+                    tmpStr.push_back('.');
+
+                    i += 2;
+                    charTmp += 3;
+                }
+                if (s[i + 3] == 'a' || s[i + 3] == 'e') {
+                    tmpStr.push_back(s[i]);
+                    tmpStr.push_back(s[i + 1]);
+                    tmpStr.push_back('.');
+                    i += 1;
+                    charTmp += 2;
+                }
+            }
+
+            chet = size - charTmp;
+        }
+
+
+        for (int i = chet; i > 0; i--) {
+            tmpStr.push_back(s[size - i]);
+        }
+
+        cout << tmpStr << '\n';
+    }
+    return 0;
+}
+
+
+/*
+Лура скучала и решила создать простой язык, используя пять букв a
+, b
+, c
+, d
+, e
+. Существуют два типа букв:
+
+гласные — буквы a
+ и e
+. Они обозначаются как V
+.
+согласные — буквы b
+, c
+, d
+. Они обозначаются как C
+.
+В языке существуют два типа слогов: CV
+ (согласная, за которой следует гласная) или CVC
+ (гласная с согласной до и после). Например, ba
+, ced
+, bab
+ являются слогами, но aa
+, eda
+, baba
+ — нет.
+Слово в языке — это последовательность слогов. Лура написала слово на этом языке, но не знает, как разбить его на слоги. Помогите ей разбить слово на слоги.
+
+Например, для слова bacedbab
+ оно будет разбито на слоги как ba.ced.bab
+ (точка .
+ обозначает границу слога).
+
+
+*/
