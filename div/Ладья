@@ -1,0 +1,56 @@
+#include <iostream>
+#include <vector>
+#include <string>
+#include <cmath>
+#include <set>
+#include <iomanip>
+
+using namespace std;
+
+bool isValidCell(char col, int row) {
+    return (col >= 'a' && col <= 'h' && row >= 1 && row <= 8);
+}
+
+vector<string> findPossibleMoves(char col, int row) {
+    vector<string> possibleMoves;
+
+    for (char c = 'a'; c <= 'h'; c++) {
+        if (c != col) {
+            possibleMoves.push_back(string(1, c) + to_string(row));
+        }
+    }
+    for (int r = 1; r <= 8; r++) {
+        if (r != row) {
+            possibleMoves.push_back(string(1, col) + to_string(r));
+        }
+    }
+
+    return possibleMoves;
+}
+
+int main() {
+    int t;
+    cin >> t;
+
+    for (int i = 0; i < t; i++) {
+        char col;
+        int row;
+        cin >> col >> row;
+
+        vector<string> possibleMoves = findPossibleMoves(col, row);
+
+        for (string& move : possibleMoves) {
+            cout << move << endl;
+        }
+    }
+
+    return 0;
+}
+
+/*
+Как вы, вероятно, знаете, шахматы — это игра, которая ведется на доске с 64 клетками, расположенными в сетке 8×8
+. Столбцы этой доски обозначены буквами от a до h, а строки — цифрами от 1 до 8. Каждая клетка описывается строкой и столбцом, к которым она принадлежит.
+
+Ладья — это фигура в игре шахматы. За ход она может перемещаться на любое ненулевое количество клеток по горизонтали или вертикали. Ваша задача — найти все возможные ходы для ладьи на пустой шахматной доске.
+
+*/
