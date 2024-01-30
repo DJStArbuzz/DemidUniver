@@ -1,0 +1,69 @@
+#include <iostream>
+#include <vector>
+#include <string>
+#include <set>
+#include <algorithm>
+#include <cmath>
+
+using namespace std;
+
+char check(vector<string>& square) {
+    int countA = 0, countB = 0, countC = 0;
+
+    for (int i = 0; i < 3; i++) {
+        for (int j = 0; j < 3; j++) {
+            if (square[i][j] == 'A') countA++;
+            if (square[i][j] == 'B') countB++;
+            if (square[i][j] == 'C') countC++;
+        }
+    }
+
+    if (countA == 2)
+    {
+        return 'A';
+    }
+
+    if (countB == 2) {
+        return 'B';
+    }
+
+    if (countC == 2)
+    {
+        return 'C';
+    }
+}
+
+int main() {
+    int t;
+    cin >> t;
+
+    for (int i = 0; i < t; i++) {
+        vector<string> square(3);
+        for (int j = 0; j < 3; j++) {
+            cin >> square[j];
+        }
+
+        char missing = check(square);
+        cout << missing << endl;
+    }
+
+    return 0;
+}
+
+/*
+Латинский квадрат — это сетка 3×3
+, состоящая из букв A
+, B
+ и C
+ таким образом, что:
+
+в каждой строке буквы A
+, B
+ и C
+ появляются по одному разу, и
+в каждом столбце буквы A
+, B
+ и C
+ появляются по одному разу.
+Например, один из возможных латинских квадратов показан ниже.
+*/
