@@ -1,0 +1,49 @@
+#include <iostream>
+#include <vector>
+#include <string>
+#include <set>
+#include <algorithm>
+#include <cmath>
+
+using namespace std;
+
+int main() {
+    int t;
+    cin >> t;
+
+    for (int i = 0; i < t; i++) {
+        int n;
+        long long sumA = 0;
+        cin >> n;
+
+        vector<long long> list(n);
+        for (int i = 0; i < n; i++) {
+            cin >> list[i];
+            sumA += list[i];
+        }
+
+        int tmp = sqrt(sumA);
+
+        if (pow(tmp, 2) == sumA) {
+            cout << "YES" << endl;
+        }
+        else {
+            cout << "NO" << endl;
+        }
+
+    }
+
+    return 0;
+}
+
+/*
+У Калина есть n
+ ведер, i
+-е из которых содержит ai
+ деревянных квадратов со стороной длиной 1
+.
+
+Может ли Калин построить один большой квадрат, используя все заданные квадраты?
+
+
+*/
