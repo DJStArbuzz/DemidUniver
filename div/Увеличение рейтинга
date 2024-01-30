@@ -1,0 +1,78 @@
+#include <iostream>
+#include <fstream>
+#include <cmath>
+#include <string>
+#include <algorithm>
+#include <set>
+#include <vector>
+
+using namespace std;
+
+
+int main()
+{
+    int n;
+    cin >> n;
+
+    for (int t = 0; t < n; t++) {
+        string abStr;
+        cin >> abStr;
+
+        bool flag = true;
+        for (int i = 1; i <= abStr.size() / 2; i++) {
+            string a = abStr.substr(0, i);
+            string b = abStr.substr(i, abStr.size() - i);
+
+            if (a[0] == '0' || b[0] == '0') {
+                continue;
+            }
+
+            int aTmp = stoi(a);
+            int bTmp = stoi(b);
+
+            if (aTmp > 0 && bTmp > aTmp) {
+                cout << aTmp << " " << bTmp << endl;
+                flag = false;
+                break;
+            }
+
+            if (aTmp == bTmp) {
+                cout << -1 << endl;
+                flag = false;
+                break;
+            }
+        }
+        if (flag) {
+            cout << -1 << endl;
+        }
+    }
+
+    return 0;
+}
+
+/*
+Монокарп отлично решает адхок задачи. Недавно он поучаствовал в Educational Codeforces Round и поднял свой рейтинг!
+
+Монокарп помнил, что до раунда его рейтинг был a
+. После раунда он увеличился до b
+ (b>a
+). Он записал оба значения одно за другим, чтобы не забыть их.
+
+Однако он записал их так близко друг к другу, что теперь не может определить, где заканчивается первое значение и начинается второе.
+
+Пожалуйста, помогите ему найти значения a
+ и b
+ такие, что:
+
+ни одно из них не содержит ведущих нулей;
+оба строго больше 0
+;
+b>a
+;
+они образуют заданное значение ab
+, если записать их одно за другим.
+Если есть несколько ответов, вы можете вывести любой из них.
+
+
+
+*/
