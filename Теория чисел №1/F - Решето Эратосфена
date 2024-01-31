@@ -1,0 +1,38 @@
+#include <iostream>
+#include <cmath>
+#include <vector>
+#include <string>
+#include <set>
+#include <algorithm>
+
+using namespace std;
+
+int main()
+{
+	int n;
+	cin >> n;
+
+	vector<int> list(n + 1);
+	for (int i = 0; i < n + 1; i++) {
+		list[i] = i;
+	}
+	list[1] = 0;
+	int k = 2;
+
+	while (k <= n) {
+		if (list[k] != 0) {
+			int j = k + k;
+			while (j <= n) {
+				list[j] = 0;
+				j += k;
+			}
+		}
+		k++;
+	}
+
+	for (int i = 0; i < list.size(); i++) {
+		if (list[i] != 0){ cout << list[i] << " "; }
+	}
+
+	return 0;
+}
