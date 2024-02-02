@@ -1,0 +1,44 @@
+#include <iostream>
+#include <cmath>
+#include <vector>
+#include <string>
+#include <algorithm>
+#include <fstream>
+#include <iomanip>
+
+using namespace std;
+
+const double PI = acos(-1.0);
+
+struct point {
+    double x, y;
+};
+
+double dot(point A, point B) {
+    return A.x * B.x + A.y * B.y;
+}
+
+double cross(point A, point B) {
+    return A.x * B.y - A.y * B.x;
+}
+
+int main()
+{
+    ifstream fileIn("angle1.in");
+    ofstream fileOut("angle1.out");
+
+    point A, B;
+    B.x = 1, B.y = 0;
+    fileIn >> A.x >> A.y;
+    fileIn.close();
+
+    double angle = atan2(A.y, A.x);
+    if (angle < 0) {
+        angle += 2 * PI;
+    }
+    fileOut << fixed << setprecision(6) << angle;
+    fileOut.close();
+
+    return 0;
+
+}
