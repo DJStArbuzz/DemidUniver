@@ -1,0 +1,53 @@
+#include <iostream>
+#include <vector>
+#include <map>
+#include <set>
+#include <iomanip>
+#include <string>
+#include <cmath>
+#include <algorithm> 
+
+using namespace std;
+
+int main()
+{   
+    int n, m, tmp;
+    cin >> n >> m;
+
+    set<int> list1, list2;
+    set<int> interList, unionList, substrList;
+
+    for (int i = 0; i < n; i++) {
+        cin >> tmp;
+        list1.insert(tmp);
+    }
+    for (int i = 0; i < m; i++) {
+        cin >> tmp;
+        list2.insert(tmp);
+    }
+
+    set_intersection(list1.begin(), list1.end(),
+        list2.begin(), list2.end(), inserter(interList, interList.begin()));
+    cout << "INTERSECTION: " << interList.size() << endl;
+    for (auto tmp : interList) {
+        cout << tmp << " ";
+    }
+
+    set_union(list1.begin(), list1.end(),
+        list2.begin(), list2.end(),
+        inserter(unionList, unionList.begin()));
+    cout << "\nUNION: " << unionList.size() << endl;
+    for (auto tmp : unionList) {
+        cout << tmp << " ";
+    }
+
+    set_difference(list1.begin(), list1.end(),
+        list2.begin(), list2.end(),
+        inserter(substrList, substrList.begin()));
+    cout << "\nA SUBTRACT B: " << substrList.size() << endl;
+    for (auto tmp : substrList) {
+        cout << tmp << " ";
+    }
+
+    return 0;
+}
