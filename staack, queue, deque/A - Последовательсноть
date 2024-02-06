@@ -1,0 +1,44 @@
+#include <iostream>
+#include <vector>
+#include <map>
+#include <set>
+#include <stack>
+#include <queue>
+#include <iomanip>
+#include <string>
+#include <cmath>
+#include <algorithm> 
+
+using namespace std;
+
+int main() {
+    queue<int> even_numbers;
+    stack<int> odd_numbers;
+
+    int tmp;
+    cin >> tmp;
+    while (tmp != 0) {
+        if (tmp % 2 == 0) {
+            even_numbers.push(tmp);
+        }
+        else {
+            odd_numbers.push(tmp);
+        }
+
+        cin >> tmp;
+    }
+
+    while (!even_numbers.empty()) {
+        cout << even_numbers.front() << " ";
+        even_numbers.pop();
+    }
+
+    cout << "\n";
+
+    while (!odd_numbers.empty()) {
+        cout << odd_numbers.top() << " ";
+        odd_numbers.pop();
+    }
+
+	return 0;
+}
