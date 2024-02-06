@@ -1,0 +1,70 @@
+#include <iostream>
+#include <vector>
+#include <map>
+#include <set>
+#include <stack>
+#include <queue>
+#include <iomanip>
+#include <string>
+#include <cmath>
+#include <algorithm> 
+
+using namespace std;
+
+int main() {
+	int n, m;
+	cin >> n >> m;
+
+	stack<int> st;
+	st.push(n + 10);
+
+	vector<int> Z(n + 10);
+	vector<int> Park(n + 10);
+	vector<int> Uch(n + 10);
+
+	char ch;
+	int k;
+	for (int i = 0; i < m; i++) {
+		cin >> ch >> k;
+
+		if (ch == '+') {
+			Z[k] = -1;
+			
+			if (st.top() < k) {
+				Park[k] = 1;
+			}
+			else {
+				Uch[k] = 1;
+				st.push(k);
+			}
+		}
+		else {
+			if (Park[k] == 1) {
+				Z[k] = 1;
+				Park[k] = 0;
+			}
+			else {
+				Uch[k] = -1;
+				while (Uch[st.top()] == -1) {
+					Uch[st.top()] = 0;
+					Z[st.top()] = 1;
+					st.pop();
+				}
+			}
+		}
+	}
+
+	for (int i = 1; i <= n; i++) {
+		if (Z[i] == 0) {
+			cout << "-1\n";
+		}
+		else if (Z[i] == 1) {
+			cout << "YES\n";
+		}
+		else {
+			cout << "NO\n";
+		}
+	}
+
+	return 0;
+}
