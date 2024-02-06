@@ -1,0 +1,106 @@
+#include <iostream>
+#include <vector>
+#include <map>
+#include <set>
+#include <stack>
+#include <deque>
+#include <queue>
+#include <iomanip>
+#include <string>
+#include <cmath>
+#include <algorithm> 
+
+using namespace std;
+
+void coutError() {
+	cout << "DEQUE IS EMPTY!\n";
+}
+
+void show_front(deque<int>& list) {
+	cout << list.front() << endl;
+}
+
+void show_back(deque<int>& list) {
+	cout << list.back() << endl;
+}
+
+void push_front(deque<int>& list, int tmpInt) {
+	list.push_front(tmpInt);
+}
+
+void push_back(deque<int>& list, int tmpInt) {
+	list.push_back(tmpInt);
+}
+
+void pop_front(deque<int>& list) {
+	list.pop_front();
+}
+
+void pop_back(deque<int>& list) {
+	 list.pop_back();
+}
+
+int main() {
+	deque <int> list;
+	string tmpStr = " ";
+	int tmpInt = 0;
+	bool flag = true;
+
+	while (tmpStr != "Bye") {
+		cin >> tmpStr;
+		if (tmpStr == "Bye") {
+			break;
+		}
+
+		if (tmpStr == "push_front") {
+			cin >> tmpInt;	
+			push_front(list, tmpInt);
+			continue;
+		}
+		else if (tmpStr == "push_back") {
+			cin >> tmpInt;
+			push_back(list, tmpInt);
+			continue;
+		}
+
+		flag = list.empty();
+		if (tmpStr == "pop_front"){
+			if (!flag) {
+				pop_front(list);
+			}
+			else {
+				coutError();
+			}
+			continue;
+		}
+		else if (tmpStr == "pop_back") {
+			if (!flag) {
+				pop_back(list);;
+			}
+			else {
+				coutError();
+			}
+			continue;
+		}
+		else if (tmpStr == "show_front") {
+			if (!flag) {
+				show_front(list);
+			}
+			else {
+				coutError();
+			}
+			continue;
+		}
+		else if (tmpStr == "show_back") {
+			if (!flag) {
+				show_back(list);
+			}
+			else {
+				coutError();
+			}
+			continue;
+		}
+	}
+
+	return 0;
+}
