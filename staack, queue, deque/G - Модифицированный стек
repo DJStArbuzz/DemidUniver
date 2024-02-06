@@ -1,0 +1,66 @@
+#include <iostream>
+#include <vector>
+#include <map>
+#include <set>
+#include <stack>
+#include <deque>
+#include <queue>
+#include <iomanip>
+#include <string>
+#include <cmath>
+#include <algorithm> 
+
+using namespace std;
+
+void push_min_elem(stack<int> &listMin, int tmpInt) {
+	if (!listMin.empty()) {
+		if (listMin.top() > tmpInt) {
+			listMin.push(tmpInt);
+		}
+		else {
+			listMin.push(listMin.top());
+		}
+	}
+	else {
+		listMin.push(tmpInt);
+	}
+}
+
+int main() {
+	stack <int> list, listMin;
+	string tmpStr = " ";
+	int tmpInt = 0;
+	bool flag = true;
+
+	int n;
+	cin >> n;
+
+	for (int i = 0; i < n; i++) {
+		cin >> tmpStr;
+
+		bool flag = list.empty();
+
+		if (tmpStr == "ADD") {
+			cin >> tmpInt;
+			push_min_elem(listMin, tmpInt);
+			list.push(tmpInt);
+		}
+		else if (tmpStr == "POP") {
+			if (!list.empty())
+			{
+				listMin.pop();
+				list.pop();
+			}
+		}
+		else {
+			if (list.empty()) {
+				cout << "STACK IS EMPTY\n";
+			}
+			else {
+				cout << listMin.top() << endl;
+			}
+		}
+	}
+
+	return 0;
+}
