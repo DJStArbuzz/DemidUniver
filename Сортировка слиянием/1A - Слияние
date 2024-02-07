@@ -1,0 +1,57 @@
+#include <iostream>
+#include <vector>
+#include <map>
+#include <set>
+#include <stack>
+#include <deque>
+#include <queue>
+#include <iomanip>
+#include <string>
+#include <cmath>
+#include <algorithm> 
+#include <map>
+
+using namespace std;
+
+int main(){
+    int n, m;
+    cin >> n >> m;
+
+    vector<int> listN(n);
+    for (int i = 0; i < n; i++) {
+        cin >> listN[i];
+    }
+    
+    vector<int> listM(m);
+    for (int i = 0; i < m; i++) {
+        cin >> listM[i];
+    }
+
+    vector<int> result;
+    int i = 0, j = 0;
+    
+    while (i < listN.size() && j < listM.size()) {
+        if (listN[i] < listM[j]) {
+            result.push_back(listN[i]);
+            i++;
+        }
+        else {
+            result.push_back(listM[j]);
+            j++;
+        }
+    }
+
+    for (int k = i; k < n; k++) {
+        result.push_back(listN[k]);
+    }
+
+    for (int k = j; k < m; k++) {
+        result.push_back(listM[k]);
+    }
+
+    for (int k = 0; k < n + m; k++) {
+        cout << result[k] << " ";
+    }
+
+    return 0;
+}
