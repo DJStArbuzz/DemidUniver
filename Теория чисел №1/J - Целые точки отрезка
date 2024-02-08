@@ -1,0 +1,33 @@
+#include <iostream>
+#include <vector>
+#include <map>
+#include <set>
+#include <stack>
+#include <deque>
+#include <queue>
+#include <iomanip>
+#include <string>
+#include <cmath>
+#include <algorithm> 
+#include <map>
+
+using namespace std;
+
+int gcd(int a, int b) {
+    if (b == 0) {
+        return a;
+    }
+    else {
+        return gcd(b, a % b);
+    }
+}
+
+int main() {
+    int x1, x2, y1, y2, res = 1;
+    cin >> x1 >> y1 >> x2 >> y2;
+
+    res += gcd(abs(x2 - x1), abs(y2 - y1));
+    cout << res;
+
+	return 0;
+}
