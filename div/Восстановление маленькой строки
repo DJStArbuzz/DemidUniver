@@ -1,0 +1,43 @@
+#include <iostream>
+#include <string>
+#include <algorithm>
+#include <vector>
+#include <cmath>
+#include <set>
+
+using namespace std;
+
+int main()
+{
+    int t;
+    cin >> t;
+
+    for (int test = 0; test < t; test++)
+    {
+        string res = "ppp";
+        int n;
+        cin >> n;
+
+        if (n <= 28)
+        {
+            res[0] = 'a';
+            res[1] = 'a';
+            res[2] = (98 + n - 4);
+        }
+        if (n >= 29 && n <= 54)
+        {
+            res[0] = 'a';
+            res[1] = (98 + n - 29);
+            res[2] = 'z';
+        }
+
+        if (n >= 54)
+        {
+            res[0] = (98 + n - 54);
+            res[1] = 'z';
+            res[2] = 'z';
+        }
+
+        cout << res << endl;
+    }
+}
