@@ -1,0 +1,40 @@
+#include <iostream>
+#include <vector>
+#include <string>
+
+using namespace std;
+
+vector<string> splitString(const string& str, const string& delimiter) {
+    vector<string> substrings;
+    size_t start = 0, end = 0;
+
+    while ((end = str.find(delimiter, start)) != string::npos) {
+        substrings.push_back(str.substr(start, end - start));
+        start = end + delimiter.length();
+    }
+
+    substrings.push_back(str.substr(start));
+    return substrings;
+}
+
+int main() {
+    int test;
+    cin >> test;
+
+    for (int t = 0; t < test; t++) {
+        int n;
+        string s;
+        cin >> n >> s;
+
+        if (s.find("**") == string::npos) {
+            cout << count(s.begin(), s.end(), '@') << endl;
+        }
+        else {
+            vector<string> subst = splitString(s, "**");
+            cout << count(subst[0].begin(), subst[0].end(), '@') << endl;
+        }
+    }
+
+
+    return 0;
+}
