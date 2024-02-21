@@ -51,15 +51,14 @@ double square(double first, double second, double third) {
 
 int main()
 {
-    ifstream fileIn("line2.in");
-    ofstream fileOut("line2.out");
+    ifstream fileIn("length.in");
+    ofstream fileOut("length.out");
 
     point A, B;
-    cin >> A.x >> A.y >> B.x >> B.y;
+    fileIn >> A.x >> A.y >> B.x >> B.y;
     double res = lengthV(A, B);
 
-
-    fileOut << A << " " << B << " " << C;
+    fileOut << fixed << setprecision(6) << res;
     fileOut.close();
     return 0;
 
