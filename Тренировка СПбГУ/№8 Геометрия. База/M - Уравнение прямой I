@@ -1,0 +1,69 @@
+#include <iostream>
+#include <cmath>
+#include <vector>
+#include <string>
+#include <algorithm>
+#include <fstream>
+#include <iomanip>
+
+using namespace std;
+
+const double PI = acos(-1.0);
+
+struct point {
+    double x, y;
+};
+
+double dot(point A, point B) {
+    return A.x * B.x + A.y * B.y;
+}
+
+double cross(point A, point B) {
+    return A.x * B.y - A.y * B.x;
+}
+
+double angle(point A) {
+    double angle = atan2(A.y, A.x);
+
+    return angle;
+}
+
+double angleV(point A, point B) {
+    double tmp = dot(A, B);
+    double angle = acos(tmp / (sqrt(pow(A.x, 2) + pow(A.y, 2)) * sqrt(pow(B.x, 2) + pow(B.y, 2))));
+    if (angle < 0) {
+        angle += PI;
+    }
+
+    return angle;
+}
+
+double lengthV(point first, point second) {
+    double tmp = sqrt(pow(second.x - first.x, 2) + pow(second.y - first.y, 2));
+    return tmp;
+}
+
+double square(double first, double second, double third) {
+    double tmp = (first + second + third) / 2;
+    return tmp;
+}
+
+
+int main()
+{
+    ifstream fileIn("line1.in");
+    ofstream fileOut("line1.out");
+
+    point t1, t2;
+    fileIn >> t1.x >> t1.y;
+    fileIn >> t2.x >> t2.y;
+
+    double A = t2.y - t1.y;
+    double B = t1.x - t2.x;
+    double C = (-1.0) * t1.x * (t2.y - t1.y) + t1.y * (t2.x - t1.x);
+
+    fileOut << A << " " << B << " " << C;
+    fileOut.close();
+    return 0;
+
+}
