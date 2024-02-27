@@ -1,0 +1,53 @@
+#include <iostream>
+#include <vector>
+#include <algorithm>
+#include <set>
+#include <cmath>
+#include <string>
+
+using namespace std;
+
+int main() {
+    int t;
+    cin >> t;
+
+    for (int test = 0; test < t; test++) {
+        long long a, b, l;
+        cin >> a >> b >> l;
+
+        if (l % a != 0 && l % b != 0) {
+            cout << 1 << endl;
+            continue;
+        }
+
+        vector<long long> listA, listB;
+
+        set<long long> res;
+        for (int i = 0; i <= 20; i++) {
+            if (pow(a, i) <= l) {
+                listA.push_back(pow(a, i));
+            }
+        }
+
+        for (int i = 0; i <= 20; i++) {
+            if (pow(b, i) <= l) {
+                listB.push_back(pow(b, i));
+            }
+        }
+
+        for (int i = 0; i < listA.size(); i++) {
+            for (int j = 0; j < listB.size(); j++) {
+                long long tmp = listA[i] * listB[j];
+                if (tmp > l || l % tmp) {
+                    continue;
+                }
+                else {
+                    res.insert(l / (listA[i] * listB[j]));
+                }
+                // cout << listA[i] << " " << listB[j] << " " << (l / (listA[i] * listB[j])) << endl;
+
+            }
+        }
+        cout << res.size() << endl;
+    }
+}
