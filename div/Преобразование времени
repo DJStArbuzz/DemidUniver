@@ -1,0 +1,43 @@
+#include <iostream>
+#include <vector>
+#include <map>
+#include <random>
+#include <algorithm>
+#include <string>
+
+using namespace std;
+
+string oper(const string& time24) {
+    int hour = stoi(time24.substr(0, 2));
+    int minute = stoi(time24.substr(3, 2));
+
+    string period = (hour < 12) ? "AM" : "PM";
+    if (hour == 0) {
+        hour = 12;
+    }
+    else if (hour > 12) {
+        hour -= 12;
+    }
+
+    return to_string(hour) + ":" + (minute < 10 ? "0" : "") + std::to_string(minute) + " " + period;
+}
+
+int main()
+{
+	int t;
+	cin >> t;
+
+	for (int test = 0; test < t; test++) {
+		string s;
+		cin >> s;
+
+        string res = oper(s);
+        if (res[1] == ':') {
+            cout << '0';
+        }
+        cout << res << '\n';
+	}
+
+	return 0;
+
+}
