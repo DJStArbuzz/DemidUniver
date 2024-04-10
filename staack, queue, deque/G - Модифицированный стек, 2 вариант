@@ -1,0 +1,54 @@
+#include <iostream>
+#include <vector>
+#include <map>
+#include <set>
+#include <stack>
+#include <deque>
+#include <queue>
+#include <iomanip>
+#include <string>
+#include <cmath>
+#include <algorithm> 
+
+using namespace std;
+
+int main() {
+	int n;
+	cin >> n;
+	string s;
+
+	int tmp;
+	pair<int, int> t1;
+	stack<pair<int, int>> st;
+
+	for (int i = 0; i < n; i++) {
+		cin >> s;
+		if (s == "POP") {
+			if (st.size() > 0) {
+				st.pop();
+			}
+		}
+		if (s == "MIN") {
+			if (st.size() > 0) {
+				cout << st.top().second << '\n';
+			}
+			else {
+				cout << "STACK IS EMPTY\n";
+			}
+		}
+		if (s == "ADD") {
+			cin >> tmp;
+			if (st.size() > 0) {
+				t1.first = tmp;
+				t1.second = min(tmp, st.top().second);
+				st.push(t1);
+			}
+			else {
+				t1.first = tmp;
+				t1.second = tmp;
+				st.push(t1);
+			}
+		}
+	}
+	return 0;
+}
