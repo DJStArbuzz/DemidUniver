@@ -1,0 +1,62 @@
+#include <iostream>
+#include <stack>
+#include <queue>
+#include <vector>
+#include <deque>
+
+using namespace std;
+
+int main()
+{
+    int n;
+    cin >> n;
+
+    // VECTOR
+    vector<int> A1;
+    vector<int> A2(n);
+    vector<int> A3(n, 5);
+    A2.size();
+    A2.empty();
+    A2.push_back(10);
+    A2.begin();  // Указатель на начало
+    A2.end();    // Указатель на конец
+    A2.rbegin(); // Указатель на начало
+    A2.rend();
+    A2.insert(A2.begin(), 10);
+    A2.erase(A2.begin() + 15, A2.begin() + 20);
+    A2.pop_back();
+    
+    // STACK. Пример - карточная колода
+    stack<int> st;  // Упрощенная версия массива
+    st.size();      // Размер
+    st.empty();     // Проверка на пустоту
+    st.push(10);    // Добавление в конец
+    st.pop();       // Удаление конца
+    st.top();       // Верхний элемент в stack
+
+    // QUEUE - очередь без приоритета. Первый пришел - первый ушел
+    queue <int> q;
+    q.size();
+    q.empty();
+    q.pop();
+    q.push(5);
+    q.front(); // Первый элемент
+    q.back();  // Последний элемент
+
+    // DEQUE - на чем построены другие массивы
+    deque<int> deq;
+    deq.push_back(10);
+    deq.pop_back();
+    deq.size();
+    deq.empty();
+    deq.push_front(10); // Добавить элемент в конец дэка
+    deq.pop_front();    // Удалить первый элемент
+    deq.begin();
+    deq.end();
+    deq.rbegin();
+    deq.rend();
+    deq[10];
+    // deq.insert(); deq.erase();
+
+
+}
