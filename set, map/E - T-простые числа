@@ -1,0 +1,38 @@
+#include <iostream>
+#include <map>
+#include <set>
+#include <vector>
+#include <cmath>
+#include <algorithm>
+
+using namespace std;
+
+int main()
+{
+    int n;
+    cin >> n;
+
+    set<long long> st;
+    vector<int> A(1e6);
+    for (long long i = 2; i < 1e6; i++) {
+        if (A[i] == 0) {
+            st.insert(i * i);
+            for (long long j = i * 2; j < 1e6; j += i) {
+                A[j] = 1;
+            }
+        }
+    }
+
+    long long q;
+    for (int i = 0; i < n; i++) {
+        cin >> q;
+        if (st.find(q) == st.end()) {
+            cout << "NO\n";
+        }
+        else {
+            cout << "YES\n";
+        }
+    }
+
+    return 0;
+}
