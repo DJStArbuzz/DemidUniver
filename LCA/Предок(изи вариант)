@@ -1,0 +1,91 @@
+#include <iostream>
+#include <vector>
+#include <string>
+#include <algorithm>
+#include <cmath>
+
+using namespace std;
+
+void preprocess(vector<vector<int>>& dp, vector<int>& p, int n) {
+	for (int i = 1; i < n; i++) {
+		dp[i][0] = p[i] - 1;
+	}
+	for (int j = 1; j < log(n); j++) {
+		for (int i = 1; i < n; i++) {
+			dp[i][j] = dp[dp[i][j - 1]][j - 1];
+		}
+	}
+}
+
+int lca(int v, int u, int n, vector<vector<int>> &dp, vector<int> &p) {
+	if (p[v] > p[u]) {
+		swap(v, u);
+	}
+
+	for (int i = log(n); i > 0; i--) {
+		if (p[dp[u][i]] - p[v] >= 0) {
+			u = dp[u][i];
+		}
+	}
+
+	if (u == v) {
+		return v;
+	}
+
+	for (int i = log(n); i > 0; i--) {
+		if (dp[v][i] != dp[u][i]) {
+			v = dp[v][i];
+			u = dp[u][i];
+		}
+	}
+
+	return p[v];
+}
+
+int main()
+{
+	int n, q;
+	cin >> n >> q;
+	
+	vector<int> p(n), d(n);
+	p[0] = 0;
+	d[0] = 0;
+
+	for (int i = 1; i < n; i++) {
+		cin >> p[i];
+	}
+
+	//for (int i = 1; i < n; i++) {
+	//	d[i] = 1 + d[p[i]];
+	//}
+
+	vector<vector<int>> dp(n, vector<int>(log(n) + 1));
+	preprocess(dp, p, n);
+
+	vector<pair<int, int>> que(q);
+	for (int i = 0; i < q; i++) {
+		cin >> que[i].first >> que[i].second;
+	}
+
+	for (int i = 0; i < q; i++) {
+		//int res = lca(que[i].first - 1, que[i].second - 1, n, dp, d);
+		//cout << res << '\n';
+		int u = que[i].first;
+		int v = que[i].second;
+		
+		while (v != 0) {
+			int k = 1, i = 0;
+			while (v >= k) {
+				k *= 2;
+				i++;
+			}
+			k /= 2;
+			v -= k;
+			u = dp[u - 1][i - 1] + 1;
+		}
+		cout << u << '\n';
+	}
+
+	return 0;
+}
+
