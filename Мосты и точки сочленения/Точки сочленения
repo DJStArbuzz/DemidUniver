@@ -1,0 +1,69 @@
+#include <iostream>
+#include <vector>
+#include <string>
+#include <cmath>
+#include <algorithm>
+#include <fstream>
+#include <map>
+#include <set>
+
+using namespace std;
+
+set<int> res;
+
+void dfs(int v, int p, vector<int> &h, vector<int> &d, vector<int> &used, vector<vector<pair<int, int>>> &g) {
+    used[v] = true;
+    int ch = 0;
+    h[v] = d[v] = (p == -1) ? 0 : h[p] + 1;
+
+    for (auto u : g[v]) {
+        if (u.first != p) {
+            if (used[u.first]) {
+                d[v] = min(d[v], h[u.first]);
+            }
+            else {
+                ch++;
+                dfs(u.first, v, h, d, used, g);
+                d[v] = min(d[v], d[u.first]);
+                if (h[v] <= d[u.first] && p >= 0) {
+                    res.insert(v);
+                }
+            }
+        }
+    }
+
+    if (ch > 1 && p < 0) {
+        res.insert(v);
+    }
+}
+
+
+int main()
+{
+    ifstream in("points.in");
+    int n, m, a, b;
+    in >> n >> m;
+
+    vector<vector<pair<int, int>>> g(n + 1);
+    vector<int> used(n + 1, 0);
+    vector<int> h(n + 1, 0);
+    vector<int> d(n + 1, 0);
+
+    for (int i = 1; i <= m; i++) {
+        in >> a >> b;
+        g[a].push_back({ b, i });
+        g[b].push_back({ a, i });
+    }
+    in.close();
+    dfs(1, -1, h, d, used, g);
+    
+    ofstream out("points.out");
+    out << res.size() << '\n';
+    for (auto elem : res) {
+        out << elem << ' ';
+    }
+    out.close();
+
+    return 0;
+}
+
