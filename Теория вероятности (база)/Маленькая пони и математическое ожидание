@@ -1,0 +1,42 @@
+#include <iostream>
+#include <vector>
+#include <algorithm>
+#include <fstream>
+#include <cmath>
+#include <iomanip>
+#include <string>
+
+using namespace std;
+
+pair<pair<int, int>, int> pairCount(string& s) {
+    pair<pair<int, int>, int> coor = { {0, 0}, 0 };
+    for (char c : s) {
+        if (c == '+') {
+            coor.first.first++;
+        }
+        else if (c == '-'){
+            coor.first.second++;
+        }
+        else {
+            coor.second++;
+        }
+    }
+    return coor;
+
+}
+
+int main()
+{
+    double m, n;
+    cin >> m >> n;
+
+    double res = 0, sum = 0;
+    for (int i = 1; i <= m; i++) {
+        double tmp = pow(i / m, n);
+        res += (tmp - sum) * i;
+        sum = tmp;
+    }
+
+    cout << fixed << setprecision(10) << res;
+    return 0;
+}
