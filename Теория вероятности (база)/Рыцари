@@ -1,0 +1,36 @@
+#include <iostream>
+#include <vector>
+#include <algorithm>
+#include <fstream>
+#include <cmath>
+#include <iomanip>
+
+using namespace std;
+
+double func(double n, double k, double m) {
+    if (m == 0 || k == 0) {
+        return 0;
+    }
+
+    if (n == k) {
+        return 1;
+    }
+    double res = k/ n + ((n - k) / n) * func(n - 1, k, m - 1);
+    return res;
+}
+
+int main()
+{
+    double n, k, m;
+    cin >> n >> k >> m;
+
+    if (k == 0) {
+        cout << fixed << setprecision(8) << 0;
+        return 0;
+    }
+
+    double res = func(n, k, m);
+    cout << fixed << setprecision(8) << res;
+
+    return 0;
+}
