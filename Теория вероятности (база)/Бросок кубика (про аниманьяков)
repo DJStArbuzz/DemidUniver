@@ -1,0 +1,34 @@
+#include <iostream>
+#include <vector>
+#include <algorithm>
+#include <fstream>
+#include <cmath>
+
+using namespace std;
+
+int main()
+{
+    int y, w;
+    cin >> y >> w;
+
+    int maxYW = max(y, w);
+    
+    if (maxYW == 1) {
+        cout << "1/1";
+        return 0;
+    }
+
+    int den = 6, num = 6 - maxYW + 1;
+
+    if (den % num == 0) {
+        den /= num;
+        num = 1;
+    }
+
+    if (den % 2 == 0 && num % 2 == 0) {
+        den /= 2;
+        num /= 2;
+    }
+    cout << num << '/' << den;
+    return 0;
+}
