@@ -1,0 +1,60 @@
+#include <iostream>
+#include <vector>
+#include <algorithm>
+#include <fstream>
+#include <cmath>
+#include <iomanip>
+#include <string>
+
+using namespace std;
+
+pair<pair<int, int>, int> pairCount(string& s) {
+    pair<pair<int, int>, int> coor = { {0, 0}, 0 };
+    for (char c : s) {
+        if (c == '+') {
+            coor.first.first++;
+        }
+        else if (c == '-'){
+            coor.first.second++;
+        }
+        else {
+            coor.second++;
+        }
+    }
+    return coor;
+
+}
+
+int main()
+{
+    string first, second;
+    cin >> first >> second;
+
+    pair<pair<int, int>, int> f = pairCount(first), s = pairCount(second);
+
+    int pluF = f.first.first;
+    int minF = f.first.second;
+
+    int pluS = s.first.first;
+    int minS = s.first.second;
+
+    int n = second.size() - pluS - minS;
+    int k = pluF - pluS;
+
+    double res = 0;
+    if (minS > minF) {
+        res = 0;
+    }
+    else if (pluS > pluF) {
+        res = 0;
+    }
+    else {
+        res = 1 / pow(2, n);
+        for (int i = 0; i < k; i++) {
+            res = (res * (n - i)) / (i + 1);
+        }
+    }
+
+    cout << fixed << setprecision(10) << res;
+    return 0;
+}
