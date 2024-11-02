@@ -1,0 +1,57 @@
+#include <iostream>
+#include <cmath>
+#include <vector>
+#include <string>
+#include <algorithm>
+#include <fstream>
+#include <iomanip>
+#include <set>
+#include <queue>
+#include <map>
+#include <algorithm>
+
+using namespace std;
+
+const double PI = acos(-1.0);
+
+
+bool sortByVal(const pair<int, int>& a,
+    const pair<int, int>& b)
+{
+    return (a.second > b.second);
+}
+
+
+int main()
+{
+    int t;
+    cin >> t;
+    for (int test = 0; test < t; test++) {
+        int n, k;
+        cin >> n >> k;
+        
+        map<int, int> list;
+        for (int i = 0; i < k; i++) {
+            int b, c;
+            cin >> b >> c;
+            list[b] += c;
+        }
+        
+        map<int, int> ::iterator it2;
+        vector<pair<int, int>> vec;
+        for (it2 = list.begin(); it2 != list.end(); it2++)
+        {
+            vec.push_back(make_pair(it2->first, it2->second));
+        }
+
+        sort(vec.begin(), vec.end(), sortByVal);
+        
+        int result = 0;
+        int mi = min(n, (int)vec.size());
+        for (int i = 0; i < mi; i++) {
+            result += vec[i].second;
+        }
+
+        cout << result << '\n';
+    }
+}
