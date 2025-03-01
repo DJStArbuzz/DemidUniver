@@ -1,0 +1,71 @@
+# 1 задание, dict, list
+
+def task1():
+    currentSentence = input("Введите текст для проверки: ").split()
+    ourDict = dict()
+    for elem in currentSentence:
+        if elem in ourDict:
+            ourDict[elem] += 1
+        else:
+            ourDict[elem] = 1
+
+    print(ourDict)
+
+    resKey = ""
+    resNum = -1
+
+    for elem in ourDict:
+        if ourDict[elem] > resNum:
+            resKey = elem
+            resNum = ourDict[elem]
+
+    print("Самый встречаемый элемент: " + str(resKey) + ". Встречается " + str(resNum) + " раз.")
+
+
+def task2():
+    currentSentence = input("Введите текст для проверки: ").split()
+    ourDict = dict()
+
+    for i in range(0, len(currentSentence), 2):
+        ourDict[currentSentence[i]] = currentSentence[i + 1]
+
+    print(ourDict)
+
+    ourTuple = ourDict.items()
+
+    ourTuple = sorted(ourTuple)
+
+    resDict = {}
+    for i in ourTuple:
+        resDict[i[0]] = i[1]
+    print(resDict)
+
+
+class MyDict:
+    def __init__(self):
+        self.ourList = list()
+
+    def add_elem(self, key, value):
+        self.ourList.append((key, value))
+
+    def check_in_dict(self, key):
+        for i in self.ourList:
+            if i[0] == key:
+                return True
+        return False
+
+    def print(self):
+        print(*self.ourList)
+
+
+# task1()
+# task2()
+ourDict = MyDict()
+
+currentSentence = input("Введите текст для проверки: ").split()
+
+for elem in currentSentence:
+    if not ourDict.check_in_dict(elem):
+        ourDict.add_elem(elem, 1)
+
+ourDict.print()
