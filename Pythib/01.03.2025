@@ -57,6 +57,12 @@ class MyDict:
     def print(self):
         print(*self.ourList)
 
+    def update(self, key, value):
+        for i in range(len(self.ourList)):
+            if self.ourList[i][0] == key:
+                self.ourList[i] = (key, value)
+                break
+
 
 # task1()
 # task2()
@@ -68,4 +74,6 @@ for elem in currentSentence:
     if not ourDict.check_in_dict(elem):
         ourDict.add_elem(elem, 1)
 
+if ourDict.check_in_dict("a"):
+    ourDict.update("a", 5)
 ourDict.print()
