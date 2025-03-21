@@ -1,0 +1,41 @@
+"""Р РµР°Р»РёР·Р°С†РёСЏ Р°Р»РіРѕСЂРёС‚РјР° Р Р°Р±РёРЅР°-РљР°СЂРїР° РЅР° СЏР·С‹РєРµ Python"""
+
+
+def rabin_karp(txt, sub_string):
+    """Р¤СѓРЅРєС†РёСЏ СЂРµР°Р»РёР·СѓРµС‚ Р°Р»РіРѕСЂРёС‚Рј Р Р°Р±РёРЅР°-РљР°СЂРїР°
+    :param txt: РёСЃС…РѕРґРЅС‹Р№ С‚РµРєСЃС‚
+    :param sub_string: РїРѕРґСЃС‚СЂРѕРєР°, РєРѕС‚РѕСЂСѓСЋ РёС‰РµРј
+    :returns: РёРЅРґРµРєСЃ РїРѕРґСЃС‚СЂРѕРєРё РІ РёСЃС…РѕРґРЅРѕРј С‚РµРєСЃС‚Рµ
+    """
+    d = 256
+    q = 10**9 + 7
+    len_str = len(txt)
+    len_sub = len(sub_string)
+    hash_text = 0
+    hash_substr = 0
+    h = pow(d, len_sub - 1) % q
+
+    # Р’С‹С‡РёСЃР»СЏРµРј С…РµС€ РґР»СЏ sub_string Рё РїРµСЂРІРѕРіРѕ РѕРєРЅР° РІ text
+    for i in range(len_sub):
+        hash_substr = (d * hash_substr + ord(sub_string[i])) % q
+        hash_text = (d * hash_text + ord(txt[i])) % q
+
+    # РЎРґРІРёРіР°РµРј РѕРєРЅРѕ РїРѕ С‚РµРєСЃС‚Сѓ
+    for i in range(len_str - len_sub + 1):
+        if hash_substr == hash_text:
+            for j in range(len_sub):
+                if txt[i + j] != sub_string[j]:
+                    break
+            else:
+                return i
+
+        # Р’С‹С‡РёСЃР»СЏРµРј С…РµС€ РґР»СЏ СЃР»РµРґСѓСЋС‰РµРіРѕ РѕРєРЅР° С‚РµРєСЃС‚Р°
+        if i < len_str - len_sub:
+            hash_text = (d * (hash_text - ord(txt[i]) * h)
+                         + ord(txt[i + len_sub])) % q
+            if hash_text < 0:
+                hash_text = hash_text + q
+    return -1
+
+
+FLAG = True
