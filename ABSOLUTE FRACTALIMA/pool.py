@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.colors import ListedColormap
-from matplotlib.widgets import Slider, Button
+from matplotlib.widgets import Slider, Button, RectangleSelector
 from numba import jit
 
 
@@ -66,26 +66,20 @@ def newton_iteration_vec(reZ, imZ, reC, imC, iterN, R, reRoots, imRoots):
 
 class NewtonFractal:
     def __init__(self):
-        self.max_iter = None
-        self.resolution = None
-        self.ymax = None
-        self.xmax = None
-        self.ymin = None
-        self.xmin = None
-        self.R = None
-        self.c = None
-        self.roots = None
+        self.zoom_stack = []
         self.init_params()
         self.setup_ui()
         self.update_plot()
+        plt.show()
 
     def init_params(self):
-        self.c = complex(-1, 0)
+        self.c = complex(0, 0)
         self.R = 1e-3
         self.xmin, self.xmax = -2, 2
         self.ymin, self.ymax = -2, 2
         self.resolution = 512
         self.max_iter = 100
+        self.roots = None
 
     def setup_ui(self):
         self.fig, self.ax = plt.subplots(figsize=(8, 8))
@@ -104,12 +98,28 @@ class NewtonFractal:
         self.s_iter = Slider(self.ax_iter, 'Iterations', 10, 200, valinit=self.max_iter, valfmt='%d')
         self.s_res = Slider(self.ax_res, 'Resolution', 256, 2048, valinit=self.resolution, valfmt='%d')
 
+        # Кнопки управления
         self.ax_save = plt.axes([0.05, 0.85, 0.1, 0.04])
         self.btn_save = Button(self.ax_save, 'Save')
-
         self.ax_reset = plt.axes([0.05, 0.80, 0.1, 0.04])
         self.btn_reset = Button(self.ax_reset, 'Reset')
+        self.ax_zoom = plt.axes([0.05, 0.75, 0.1, 0.04])
+        self.btn_zoom = Button(self.ax_zoom, 'Zoom')
+        self.ax_back = plt.axes([0.05, 0.70, 0.1, 0.04])
+        self.btn_back = Button(self.ax_back, 'Back')
 
+        # Селектор для масштабирования
+        self.selector = RectangleSelector(
+            self.ax, self.zoom_to_rect,
+            useblit=True,
+            button=[1],
+            minspanx=5, minspany=5,
+            spancoords='pixels',
+            interactive=True,
+            props=dict(alpha=0.3, facecolor='red', edgecolor='black'))
+        self.selector.set_active(False)
+
+        # Привязка событий
         self.s_re.on_changed(self.update)
         self.s_im.on_changed(self.update)
         self.s_R.on_changed(self.update)
@@ -117,6 +127,25 @@ class NewtonFractal:
         self.s_res.on_changed(self.update)
         self.btn_save.on_clicked(self.save_image)
         self.btn_reset.on_clicked(self.reset)
+        self.btn_zoom.on_clicked(self.toggle_selector)
+        self.btn_back.on_clicked(self.zoom_back)
+
+    def zoom_to_rect(self, eclick, erelease):
+        x1, y1 = eclick.xdata, eclick.ydata
+        x2, y2 = erelease.xdata, erelease.ydata
+        self.zoom_stack.append((self.xmin, self.xmax, self.ymin, self.ymax))
+        self.xmin, self.xmax = sorted([x1, x2])
+        self.ymin, self.ymax = sorted([y1, y2])
+        self.update_plot()
+        self.selector.set_active(False)
+
+    def toggle_selector(self, event):
+        self.selector.set_active(not self.selector.get_active())
+
+    def zoom_back(self, event):
+        if self.zoom_stack:
+            self.xmin, self.xmax, self.ymin, self.ymax = self.zoom_stack.pop()
+            self.update_plot()
 
     def update(self, val=None):
         self.c = complex(self.s_re.val, self.s_im.val)
@@ -126,6 +155,7 @@ class NewtonFractal:
         self.update_plot()
 
     def reset(self, event):
+        self.zoom_stack = []
         self.init_params()
         self.s_re.set_val(self.c.real)
         self.s_im.set_val(self.c.imag)
@@ -157,15 +187,21 @@ class NewtonFractal:
         cmap = ListedColormap(['gray', 'red', 'green', 'blue'])
         self.ax.clear()
         self.ax.imshow(basin, cmap=cmap,
-                       extent=[self.xmin, self.xmax, self.ymin, self.ymax],
-                       origin='lower')
-        self.ax.set_title(f"$z^3 + ({self.c.real:.2f}{self.c.imag:+.2f}i) = 0$")
+                      extent=[self.xmin, self.xmax, self.ymin, self.ymax],
+                      origin='lower',
+                      aspect='auto')
+        self.ax.set_title(
+            f"Бассейны Ньютона для $z^3 + ({self.c.real:.2f}{self.c.imag:+.2f}i) = 0$\n"
+            f"R={self.R:.0e}, Итерации: {self.max_iter}, Разрешение: {self.resolution}"
+        )
+        self.ax.set_xlabel("Re(z)")
+        self.ax.set_ylabel("Im(z)")
         self.fig.canvas.draw_idle()
 
     def save_image(self, event):
-        filename = f"newton_c_{self.c.real:.2f}_{self.c.imag:.2f}i_R_{self.R:.0e}.png"
-        plt.savefig(filename, dpi=300, bbox_inches='tight')
-        print(f"Saved to {filename}")
+        filename = f"newton_c_{self.c.real:.2f}_{self.c.imag:.2f}i_R_{self.R:.0e}.jpg"
+        plt.savefig(filename, dpi=300, bbox_inches='tight', format='jpeg')
+        print(f"Изображение сохранено как {filename}")
 
 
 if __name__ == "__main__":
