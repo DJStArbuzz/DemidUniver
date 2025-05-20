@@ -2,11 +2,14 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.colors import ListedColormap
 from matplotlib.widgets import Slider, Button, RectangleSelector
+from matplotlib.patches import Patch
 from numba import jit
+
+resolution = 1000
 
 
 @jit(nopython=True)
-def newton_iteration_vec(reZ, imZ, reC, imC, iterN, R, reRoots, imRoots):
+def newton_pool(reZ, imZ, reC, imC, iterN, R, reRoots, imRoots):
     height, width = reZ.shape
     basin = np.zeros((height, width), dtype=np.int32)
 
@@ -23,11 +26,11 @@ def newton_iteration_vec(reZ, imZ, reC, imC, iterN, R, reRoots, imRoots):
                 (x+iy)^2 = x^2 - y^2 + 2ixy
                 (x+iy)^3 = (x^2 - y^2 + 2ixy)(x+iy) = x^3 + 3ixy - 3xy^2 iy^3
                 """
-                z_re_sq = curReZ * curReZ
-                z_im_sq = curImZ * curImZ
+                reZSq = curReZ * curReZ
+                imZSq = curImZ * curImZ
 
-                f_re = curReZ * (z_re_sq - 3 * z_im_sq) + reC
-                f_im = curImZ * (3 * z_re_sq - z_im_sq) + imC
+                reF = curReZ * (reZSq - 3 * imZSq) + reC
+                imF = curImZ * (3 * reZSq - imZSq) + imC
 
                 """
                 f'(z) = 3z^2
@@ -35,19 +38,19 @@ def newton_iteration_vec(reZ, imZ, reC, imC, iterN, R, reRoots, imRoots):
                 (x+iy)^2 = x^2 - y^2 + 2ixy
                 f'(z) = 3x^2-3y^2+6ixy
                 """
-                fp_re = 3 * (z_re_sq - z_im_sq)
-                fp_im = 6 * curReZ * curImZ
+                reFd = 3 * (reZSq - imZSq)
+                imFd = 6 * curReZ * curImZ
                 # f'(z) * -f'(z) = -f'(z)/|f'(z)^2|
-                fp_norm = fp_re * fp_re + fp_im * fp_im
+                normFd = reFd * reFd + imFd * imFd
 
-                if fp_norm < 1e-10:
+                if normFd < 1e-10:
                     break
 
                 # Обновление по методу Ньютона
-                delta_re = (f_re * fp_re + f_im * fp_im) / fp_norm
-                delta_im = (f_im * fp_re - f_re * fp_im) / fp_norm
-                curReZ -= delta_re
-                curImZ -= delta_im
+                reDelta = (reF * reFd + imF * imFd) / normFd
+                imDelta = (imF * reFd - reF * imFd) / normFd
+                curReZ -= reDelta
+                curImZ -= imDelta
 
                 # Проверка сходимости к корням
                 for k in range(len(reRoots)):
@@ -60,12 +63,20 @@ def newton_iteration_vec(reZ, imZ, reC, imC, iterN, R, reRoots, imRoots):
                 if converged:
                     break
             else:
-                basin[i, j] = 0  # Не сошлось
+                basin[i, j] = 0
     return basin
 
 
 class NewtonFractal:
     def __init__(self):
+        self.iterNum = None
+        self.yMax = None
+        self.yMin = None
+        self.xMax = None
+        self.xMin = None
+        self.R = None
+        self.c = None
+        self.roots = None
         self.zoom_stack = []
         self.init_params()
         self.setup_ui()
@@ -73,12 +84,11 @@ class NewtonFractal:
         plt.show()
 
     def init_params(self):
-        self.c = complex(0, 0)
+        self.c = complex(-1, 0)
         self.R = 1e-3
-        self.xmin, self.xmax = -2, 2
-        self.ymin, self.ymax = -2, 2
-        self.resolution = 512
-        self.max_iter = 100
+        self.xMin, self.xMax = -3, 3
+        self.yMin, self.yMax = -3, 3
+        self.iterNum = 50
         self.roots = None
 
     def setup_ui(self):
@@ -90,15 +100,12 @@ class NewtonFractal:
         self.ax_im = plt.axes([0.25, 0.20, 0.65, 0.03])
         self.ax_R = plt.axes([0.25, 0.15, 0.65, 0.03])
         self.ax_iter = plt.axes([0.25, 0.10, 0.65, 0.03])
-        self.ax_res = plt.axes([0.25, 0.05, 0.65, 0.03])
 
         self.s_re = Slider(self.ax_re, 'Re(c)', -3.0, 3.0, valinit=self.c.real)
         self.s_im = Slider(self.ax_im, 'Im(c)', -3.0, 3.0, valinit=self.c.imag)
         self.s_R = Slider(self.ax_R, 'R', 1e-5, 1e-2, valinit=self.R, valfmt='%1.0e')
-        self.s_iter = Slider(self.ax_iter, 'Iterations', 10, 200, valinit=self.max_iter, valfmt='%d')
-        self.s_res = Slider(self.ax_res, 'Resolution', 256, 2048, valinit=self.resolution, valfmt='%d')
+        self.s_iter = Slider(self.ax_iter, 'Iterations', 1, 100, valinit=self.iterNum, valfmt='%d')
 
-        # Кнопки управления
         self.ax_save = plt.axes([0.05, 0.85, 0.1, 0.04])
         self.btn_save = Button(self.ax_save, 'Save')
         self.ax_reset = plt.axes([0.05, 0.80, 0.1, 0.04])
@@ -124,7 +131,7 @@ class NewtonFractal:
         self.s_im.on_changed(self.update)
         self.s_R.on_changed(self.update)
         self.s_iter.on_changed(self.update)
-        self.s_res.on_changed(self.update)
+
         self.btn_save.on_clicked(self.save_image)
         self.btn_reset.on_clicked(self.reset)
         self.btn_zoom.on_clicked(self.toggle_selector)
@@ -133,9 +140,9 @@ class NewtonFractal:
     def zoom_to_rect(self, eclick, erelease):
         x1, y1 = eclick.xdata, eclick.ydata
         x2, y2 = erelease.xdata, erelease.ydata
-        self.zoom_stack.append((self.xmin, self.xmax, self.ymin, self.ymax))
-        self.xmin, self.xmax = sorted([x1, x2])
-        self.ymin, self.ymax = sorted([y1, y2])
+        self.zoom_stack.append((self.xMin, self.xMax, self.yMin, self.yMax))
+        self.xMin, self.xMax = sorted([x1, x2])
+        self.yMin, self.yMax = sorted([y1, y2])
         self.update_plot()
         self.selector.set_active(False)
 
@@ -144,14 +151,13 @@ class NewtonFractal:
 
     def zoom_back(self, event):
         if self.zoom_stack:
-            self.xmin, self.xmax, self.ymin, self.ymax = self.zoom_stack.pop()
+            self.xMin, self.xMax, self.yMin, self.yMax = self.zoom_stack.pop()
             self.update_plot()
 
     def update(self, val=None):
         self.c = complex(self.s_re.val, self.s_im.val)
         self.R = self.s_R.val
-        self.max_iter = int(self.s_iter.val)
-        self.resolution = int(self.s_res.val)
+        self.iterNum = int(self.s_iter.val)
         self.update_plot()
 
     def reset(self, event):
@@ -160,39 +166,56 @@ class NewtonFractal:
         self.s_re.set_val(self.c.real)
         self.s_im.set_val(self.c.imag)
         self.s_R.set_val(self.R)
-        self.s_iter.set_val(self.max_iter)
-        self.s_res.set_val(self.resolution)
+        self.s_iter.set_val(self.iterNum)
         self.update_plot()
 
     def compute_basin(self):
-        x = np.linspace(self.xmin, self.xmax, self.resolution)
-        y = np.linspace(self.ymin, self.ymax, self.resolution)
+        x = np.linspace(self.xMin, self.xMax, resolution)
+        y = np.linspace(self.yMin, self.yMax, resolution)
         X, Y = np.meshgrid(x, y)
-
         # поиск корней
         self.roots = np.roots([1, 0, 0, self.c])
-        roots_real = self.roots.real
-        roots_imag = self.roots.imag
+        reRoots = self.roots.real
+        imRoots = self.roots.imag
 
-        basin = newton_iteration_vec(
+        basin = newton_pool(
             X, Y,
             self.c.real, self.c.imag,
-            self.max_iter, self.R,
-            roots_real, roots_imag
+            self.iterNum, self.R,
+            reRoots, imRoots
         )
         return basin
 
     def update_plot(self):
         basin = self.compute_basin()
         cmap = ListedColormap(['gray', 'red', 'green', 'blue'])
+
         self.ax.clear()
-        self.ax.imshow(basin, cmap=cmap,
-                      extent=[self.xmin, self.xmax, self.ymin, self.ymax],
-                      origin='lower',
-                      aspect='auto')
+        img = self.ax.imshow(basin, cmap=cmap,
+                             extent=[self.xMin, self.xMax, self.yMin, self.yMax],
+                             origin='lower',
+                             aspect='auto')
+
+        legend_elements = []
+        if self.roots is not None:
+            colors = ['red', 'green', 'blue']
+            for k, (root, color) in enumerate(zip(self.roots, colors)):
+                legend_text = f'Root {k + 1}: {root.real:.3f}'
+                if root.imag >= 0:
+                    legend_text += f' + {root.imag:.3f}i'
+                else:
+                    legend_text += f' - {abs(root.imag):.3f}i'
+                legend_elements.append(Patch(facecolor=color, label=legend_text))
+
+        legend_elements.append(Patch(facecolor='gray', label='No convergence'))
+
+        self.ax.legend(handles=legend_elements, loc='upper right', fontsize=8,
+                       bbox_to_anchor=(1.05, 1), borderaxespad=0.)
+
+        # Обновляем заголовок
         self.ax.set_title(
             f"Бассейны Ньютона для $z^3 + ({self.c.real:.2f}{self.c.imag:+.2f}i) = 0$\n"
-            f"R={self.R:.0e}, Итерации: {self.max_iter}, Разрешение: {self.resolution}"
+            f"R={self.R:.0e}, Итерации: {self.iterNum}"
         )
         self.ax.set_xlabel("Re(z)")
         self.ax.set_ylabel("Im(z)")
