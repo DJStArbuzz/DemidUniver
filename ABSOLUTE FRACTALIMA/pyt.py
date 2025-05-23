@@ -45,16 +45,16 @@ def smoker_process(name, has_item, needed_sem, needed_items):
     while True:
         needed_sem.acquire()
         with TABLE_MUTEX:
-            print(f"\n\033[92m{name} (имеет {has_item}) "
-                  f"взял {needed_items[0]} и {needed_items[1]}\033[0m")
+            print(f"\033[92m{name} (имеет {has_item}) "
+                  f"взял {needed_items[0]} и {needed_items[1]}\033[0m\n")
             BARTENDER_SEM.release()
 
         # Процесс курения
-        print(f"\033[93m{name} начинает курить...\033[0m")
+        print(f"\033[93m{name} начинает курить...\033[0m\n")
         smoke_time = random.randint(2, 5)
         time.sleep(smoke_time)
 
-        print(f"\033[93m{name} закончил курить ({smoke_time} сек.)\033[0m")
+        print(f"\033[93m{name} закончил курить ({smoke_time} сек.)\033[0m\n")
 
 
 if __name__ == "__main__":
