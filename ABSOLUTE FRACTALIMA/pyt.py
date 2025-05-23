@@ -14,7 +14,6 @@ BARTENDER_SEM = threading.Semaphore(1)
 
 # Мьютекс для стола и вывода
 TABLE_MUTEX = threading.Lock()
-PRINT_MUTEX = threading.Lock()
 
 
 def bartender_process():
@@ -26,11 +25,9 @@ def bartender_process():
     ]
     while True:
         BARTENDER_SEM.acquire()
-        with TABLE_MUTEX:
-            comb_sem, item1, item2 = random.choice(combinations)
-            with PRINT_MUTEX:
-                print(f"\n\033[94mБармен положил: {item1} и {item2}\033[0m")
-            comb_sem.release()
+        comb_sem, item1, item2 = random.choice(combinations)
+        print(f"\n\033[94mБармен положил: {item1} и {item2}\033[0m")
+        comb_sem.release()
 
 
 def smoker_process(name, has_item, needed_sem, needed_items):
@@ -51,7 +48,7 @@ def smoker_process(name, has_item, needed_sem, needed_items):
 
         # Процесс курения
         print(f"\033[93m{name} начинает курить...\033[0m\n")
-        smoke_time = random.randint(2, 5)
+        smoke_time = random.randint(2, 4)
         time.sleep(smoke_time)
 
         print(f"\033[93m{name} закончил курить ({smoke_time} сек.)\033[0m\n")
@@ -59,20 +56,20 @@ def smoker_process(name, has_item, needed_sem, needed_items):
 
 if __name__ == "__main__":
     threads = [
-        threading.Thread(target=bartender_process, daemon=True),
+        threading.Thread(target=bartender_process),
         threading.Thread(
             target=smoker_process,
-            args=("Курильщик 1", "Табак", PAPER_FILTER, ("Бумагу", "Фильтр")),
+            args=("Курильщик Т", "Табак", PAPER_FILTER, ("Бумагу", "Фильтр")),
             daemon=True
         ),
         threading.Thread(
             target=smoker_process,
-            args=("Курильщик 2", "Бумагу", TOBACCO_FILTER, ("Табак", "Фильтр")),
+            args=("Курильщик Б", "Бумагу", TOBACCO_FILTER, ("Табак", "Фильтр")),
             daemon=True
         ),
         threading.Thread(
             target=smoker_process,
-            args=("Курильщик 3", "Фильтр", TOBACCO_PAPER, ("Табак", "Бумагу")),
+            args=("Курильщик Ф", "Фильтр", TOBACCO_PAPER, ("Табак", "Бумагу")),
             daemon=True
         )
     ]
