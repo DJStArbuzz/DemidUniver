@@ -1,52 +1,49 @@
 """
-Моделирование проблемы трех курильщиков с использованием потоков и семафоров.
+Modeling the three smokers problem using threads and semaphores.
 """
 
 import threading
 import time
 import random
 
-# Семафоры для пар компонентов
-TOBACCO_PAPER = threading.Semaphore(0)
-TOBACCO_FILTER = threading.Semaphore(0)
-PAPER_FILTER = threading.Semaphore(0)
-BARTENDER_SEM = threading.Semaphore(1)
-
-# Мьютекс для стола и вывода
-TABLE_MUTEX = threading.Lock()
+# Semaphores for component pairs
+TOBACCO_PAPER: threading.Semaphore = threading.Semaphore(0)
+TOBACCO_FILTER: threading.Semaphore = threading.Semaphore(0)
+PAPER_FILTER: threading.Semaphore = threading.Semaphore(0)
+BARTENDER_SEM: threading.Semaphore = threading.Semaphore(1)
 
 
-def bartender_process():
-    """Поток бармена, размещающего компоненты на столе."""
-    combinations = [
+def bartender_process() -> None:
+    """The flow of the bartender placing the ingredients on the table."""
+    combinations: list[tuple[threading.Semaphore, str, str]] = [
         (TOBACCO_PAPER, "Табак", "Бумагу"),
         (TOBACCO_FILTER, "Табак", "Фильтр"),
         (PAPER_FILTER, "Бумагу", "Фильтр")
     ]
     while True:
         BARTENDER_SEM.acquire()
-        comb_sem, item1, item2 = random.choice(combinations)
-        print(f"\n\033[94mБармен положил: {item1} и {item2}\033[0m")
+        comb_sem, item_1, item_2 = random.choice(combinations)
+        print(f"\033[94mБармен положил: {item_1} и {item_2}\033[0m\n")
         comb_sem.release()
 
 
-def smoker_process(name, has_item, needed_sem, needed_items):
-    """Поток курильщика, забирающего компоненты и курящего.
+def smoker_process(name: str, has_item: str,
+                   needed_sem: threading.Semaphore, needed_items: tuple[str]) -> None:
+    """The flow of a smoker picking up components and smoking.
 
     Params:
-        name (str): Имя курильщика
-        has_item (str): Компонент, который уже есть у курильщика
-        needed_sem (Semaphore): Семафор для нужной пары компонентов
-        needed_items (tuple): Необходимые компоненты для курения
+        name (str): Smoker's name
+        has_item (str): A component that the smoker already has
+        needed_sem (Semaphore): A semaphore for the desired pair of components
+        needed_items (tuple): Essential ingredients for smoking
     """
     while True:
         needed_sem.acquire()
-        with TABLE_MUTEX:
-            print(f"\033[92m{name} (имеет {has_item}) "
-                  f"взял {needed_items[0]} и {needed_items[1]}\033[0m\n")
-            BARTENDER_SEM.release()
+        print(f"\033[92m{name} (имеет {has_item}) "
+              f"взял {needed_items[0]} и {needed_items[1]}\033[0m\n")
+        BARTENDER_SEM.release()
 
-        # Процесс курения
+        # The smoking process
         print(f"\033[93m{name} начинает курить...\033[0m\n")
         smoke_time = random.randint(2, 4)
         time.sleep(smoke_time)
@@ -55,7 +52,7 @@ def smoker_process(name, has_item, needed_sem, needed_items):
 
 
 if __name__ == "__main__":
-    threads = [
+    threads: list[threading.Thread] = [
         threading.Thread(target=bartender_process),
         threading.Thread(
             target=smoker_process,
