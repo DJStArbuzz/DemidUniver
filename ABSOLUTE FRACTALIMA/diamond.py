@@ -1,123 +1,140 @@
-import pygame
 import numpy as np
-import random
-
-# Настройки
-WIDTH, HEIGHT = 800, 600
-INIT_SIZE = 257
-COLORS = [
-    (0, 0, 150), (0, 0, 255), (245, 245, 220),
-    (34, 139, 34), (139, 69, 19), (255, 255, 255)
-]
+import matplotlib.pyplot as plt
+from matplotlib.widgets import Slider
+from numba import njit
 
 
-class TerrainGenerator:
-    def __init__(self, roughness=0.5):
-        self.size = INIT_SIZE
-        self.base_roughness = roughness
-        self.current_roughness = roughness
-        self.heightmap = np.zeros((self.size, self.size), dtype=np.float32)
-        self.steps = []
-        self.init_corners()
-        self.prepare_steps()
+@njit(cache=True)
+def diamond_square(n_iter, roughness=0.5):
+    size = 2 ** n_iter + 1
+    terrain = np.zeros((size, size))
+    terrain[0::size - 1, 0::size - 1] = np.random.uniform(-1, 1, (2, 2))
 
-    def init_corners(self):
-        self.heightmap[0, 0] = random.random()
-        self.heightmap[0, -1] = random.random()
-        self.heightmap[-1, 0] = random.random()
-        self.heightmap[-1, -1] = random.random()
+    step_size = size - 1
+    current_roughness = roughness
 
-    def prepare_steps(self):
-        step = self.size - 1
-        self.steps = []
-        while step > 1:
-            self.steps.append(('diamond', step))
-            self.steps.append(('square', step))
-            step //= 2
+    for _ in range(n_iter):
+        half = step_size // 2
 
-    def generate_next(self):
-        if not self.steps:
-            return False
+        # Diamond step
+        for x in range(0, size - step_size, step_size):
+            for y in range(0, size - step_size, step_size):
+                avg = (terrain[x, y] + terrain[x + step_size, y] +
+                       terrain[x, y + step_size] + terrain[x + step_size, y + step_size]) / 4
+                terrain[x + half, y + half] = avg + np.random.uniform(-1, 1) * current_roughness
 
-        step_type, step = self.steps.pop(0)
-        half = step // 2
-        iterations = int(np.log2(self.size)) - int(np.log2(step))
-        current_roughness = self.base_roughness * (0.7 ** iterations)
+        # Square step
+        for x in range(0, size, half):
+            for y in range((x + half) % step_size, size, step_size):
+                total = 0.0
+                count = 0
+                if x >= half:
+                    total += terrain[x - half, y]
+                    count += 1
+                if x + half < size:
+                    total += terrain[x + half, y]
+                    count += 1
+                if y >= half:
+                    total += terrain[x, y - half]
+                    count += 1
+                if y + half < size:
+                    total += terrain[x, y + half]
+                    count += 1
+                if count > 0:
+                    terrain[x, y] = total / count + np.random.uniform(-1, 1) * current_roughness
 
-        if step_type == 'diamond':
-            for y in range(0, self.size - 1, step):
-                for x in range(0, self.size - 1, step):
-                    avg = np.mean([
-                        self.heightmap[y, x],
-                        self.heightmap[y, x + step],
-                        self.heightmap[y + step, x],
-                        self.heightmap[y + step, x + step]
-                    ])
-                    self.heightmap[y + half, x + half] = avg + random.uniform(-1, 1) * current_roughness
-        else:
-            for y in range(0, self.size, half):
-                for x in range((y + half) % step, self.size, step):
-                    neighbors = []
-                    if y >= half:
-                        neighbors.append(self.heightmap[y - half, x])
-                    if y + half < self.size:
-                        neighbors.append(self.heightmap[y + half, x])
-                    if x >= half:
-                        neighbors.append(self.heightmap[y, x - half])
-                    if x + half < self.size:
-                        neighbors.append(self.heightmap[y, x + half])
+        step_size = half
+        current_roughness *= 0.5
 
-                    if neighbors:
-                        avg = np.mean(neighbors)
-                        self.heightmap[y, x] = avg + random.uniform(-1, 1) * current_roughness
-
-        return True
-
-    def get_surface(self):
-        normalized = (self.heightmap - np.min(self.heightmap)) / np.ptp(self.heightmap)
-        indices = (normalized * (len(COLORS) - 1)).astype(np.uint8)
-        rgb_array = np.array(COLORS)[indices]
-        return pygame.surfarray.make_surface(rgb_array.repeat(2, axis=0).repeat(2, axis=1))
+    return terrain
 
 
-# Инициализация Pygame
-pygame.init()
-screen = pygame.display.set_mode((WIDTH, HEIGHT))
-clock = pygame.time.Clock()
-font = pygame.font.Font(None, 24)
+@njit(cache=True)
+def progressive_generate(base, new_iter, roughness):
+    current_size = base.shape[0]
+    current_iter = int(np.log2(current_size - 1))
+    new_size = 2 ** new_iter + 1
 
-generator = TerrainGenerator()
-running = True
-dirty = True
+    terrain = np.zeros((new_size, new_size))
+    step = (new_size - 1) // (current_size - 1)
+    terrain[::step, ::step] = base
 
-while running:
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            running = False
-        if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_r:
-                generator = TerrainGenerator(generator.base_roughness)
-                dirty = True
-            elif event.key == pygame.K_UP:
-                generator.base_roughness = min(generator.base_roughness + 0.1, 2.0)
-            elif event.key == pygame.K_DOWN:
-                generator.base_roughness = max(generator.base_roughness - 0.1, 0.05)
+    for iter_num in range(current_iter, new_iter):
+        step_size = 2 ** (new_iter - iter_num)
+        half = step_size // 2
+        current_rough = roughness * (0.5 ** iter_num)
 
-    if dirty:
-        if generator.generate_next():
-            surf = generator.get_surface()
-            screen.blit(pygame.transform.scale(surf, (WIDTH, HEIGHT)), (0, 0))
+        # Diamond step
+        for x in range(0, new_size - step_size, step_size):
+            for y in range(0, new_size - step_size, step_size):
+                avg = (terrain[x, y] + terrain[x + step_size, y] +
+                       terrain[x, y + step_size] + terrain[x + step_size, y + step_size]) / 4
+                terrain[x + half, y + half] = avg + np.random.uniform(-1, 1) * current_rough
 
-            # Отображение уровня шероховатости
-            text = font.render(
-                f"Шероховатость: {generator.base_roughness:.2f}",
-                True, (255, 255, 255), (0, 0, 0)
-            )
-            screen.blit(text, (10, 10))
+        # Square step
+        for x in range(0, new_size, half):
+            for y in range((x + half) % step_size, new_size, step_size):
+                total = 0.0
+                count = 0
+                if x >= half:
+                    total += terrain[x - half, y]
+                    count += 1
+                if x + half < new_size:
+                    total += terrain[x + half, y]
+                    count += 1
+                if y >= half:
+                    total += terrain[x, y - half]
+                    count += 1
+                if y + half < new_size:
+                    total += terrain[x, y + half]
+                    count += 1
+                if count > 0:
+                    terrain[x, y] = total / count + np.random.uniform(-1, 1) * current_rough
 
-            pygame.display.flip()
-            clock.tick(10)
-        else:
-            dirty = False
+    return terrain
 
-pygame.quit()
+
+fig, ax = plt.subplots(figsize=(10, 8))
+plt.subplots_adjust(left=0.1, right=0.8, bottom=0.25)
+
+current_iter = 5
+current_roughness = 0.5
+terrain = diamond_square(current_iter, current_roughness)
+img = ax.imshow(terrain, cmap='terrain', origin='lower',
+                extent=[0, terrain.shape[1], 0, terrain.shape[0]])
+ax.set_title('Diamond-Square Fractal Landscape')
+ax.set_aspect('equal')
+
+cax = fig.add_axes([0.85, 0.15, 0.03, 0.7])
+fig.colorbar(img, cax=cax, label='Height')
+
+ax_iter = fig.add_axes([0.2, 0.15, 0.6, 0.03])
+iter_slider = Slider(ax_iter, 'Iterations', 1, 10, valinit=current_iter, valstep=1)
+
+ax_rough = fig.add_axes([0.2, 0.1, 0.6, 0.03])
+rough_slider = Slider(ax_rough, 'Roughness', 0.1, 2.0, valinit=current_roughness, valstep=0.1)
+
+
+def update(val):
+    global terrain, current_iter
+    new_iter = int(iter_slider.val)
+    new_rough = rough_slider.val
+
+    if new_iter > current_iter:
+        terrain = progressive_generate(terrain, new_iter, new_rough)
+    else:
+        terrain = diamond_square(new_iter, new_rough)
+
+    current_iter = new_iter
+    img.set_data(terrain)
+    img.set_extent([0, terrain.shape[1], 0, terrain.shape[0]])
+    img.set_clim(terrain.min(), terrain.max())
+    ax.set_xlim(0, terrain.shape[1])
+    ax.set_ylim(0, terrain.shape[0])
+    fig.canvas.draw_idle()
+
+
+iter_slider.on_changed(update)
+rough_slider.on_changed(update)
+
+plt.show()
