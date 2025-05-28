@@ -55,9 +55,8 @@ class TerrainGenerator:
                     (points[i][0] - points[i + 1][0]) ** 2 +
                     (points[i][1] - points[i + 1][1]) ** 2
                 )
-                displacement_range = segment_length / (2 ** roughness)
-
-                new_point = (new_x, new_y + random.uniform(-displacement_range, displacement_range))
+                delta = segment_length / (2 ** roughness)
+                new_point = (new_x, new_y + random.uniform(-delta, delta))
 
                 new_points.append(points[i])
                 new_points.append(new_point)
