@@ -1,6 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from matplotlib.widgets import Slider
+from matplotlib.widgets import Slider, Button
 from numba import njit
 
 
@@ -45,7 +45,6 @@ def diamond_square(n_iter, roughness=0.5):
 
         step_size = half
         current_roughness *= 0.5
-
     return terrain
 
 
@@ -94,47 +93,87 @@ def progressive_generate(base, new_iter, roughness):
     return terrain
 
 
-fig, ax = plt.subplots(figsize=(10, 8))
-plt.subplots_adjust(left=0.1, right=0.8, bottom=0.25)
-
-current_iter = 5
-current_roughness = 0.5
-terrain = diamond_square(current_iter, current_roughness)
-img = ax.imshow(terrain, cmap='terrain', origin='lower',
-                extent=[0, terrain.shape[1], 0, terrain.shape[0]])
-ax.set_title('Diamond-Square Fractal Landscape')
-ax.set_aspect('equal')
-
-cax = fig.add_axes([0.85, 0.15, 0.03, 0.7])
-fig.colorbar(img, cax=cax, label='Height')
-
-ax_iter = fig.add_axes([0.2, 0.15, 0.6, 0.03])
-iter_slider = Slider(ax_iter, 'Iterations', 1, 10, valinit=current_iter, valstep=1)
-
-ax_rough = fig.add_axes([0.2, 0.1, 0.6, 0.03])
-rough_slider = Slider(ax_rough, 'Roughness', 0.1, 2.0, valinit=current_roughness, valstep=0.1)
+def show():
+    plt.show()
 
 
-def update(val):
-    global terrain, current_iter
-    new_iter = int(iter_slider.val)
-    new_rough = rough_slider.val
+class DiamondSquareApp:
+    def __init__(self):
+        self.fig, self.ax = plt.subplots(figsize=(10, 8))
+        plt.subplots_adjust(left=0.1, right=0.8, bottom=0.3)
 
-    if new_iter > current_iter:
-        terrain = progressive_generate(terrain, new_iter, new_rough)
-    else:
-        terrain = diamond_square(new_iter, new_rough)
+        self.initial_n = 5
+        self.initial_r = 0.5
 
-    current_iter = new_iter
-    img.set_data(terrain)
-    img.set_extent([0, terrain.shape[1], 0, terrain.shape[0]])
-    img.set_clim(terrain.min(), terrain.max())
-    ax.set_xlim(0, terrain.shape[1])
-    ax.set_ylim(0, terrain.shape[0])
-    fig.canvas.draw_idle()
+        self.curr_n = self.initial_n
+        self.curr_r = self.initial_r
+        self.terrain = diamond_square(self.curr_n, self.curr_r)
+
+        self.img = self.ax.imshow(self.terrain, cmap='terrain', extent=[0, self.terrain.shape[1], 0, self.terrain.shape[0]])
+        self.ax.set_title('Diamond-Square')
+        self.ax.set_aspect('equal')
+
+        # Создаем слайдеры
+        self.ax_iter = self.fig.add_axes([0.2, 0.2, 0.6, 0.03])
+        self.n_slider = Slider(
+            self.ax_iter, 'N', 1, 10,
+            valinit=self.curr_n, valstep=1
+        )
+
+        self.ax_rough = self.fig.add_axes([0.2, 0.15, 0.6, 0.03])
+        self.r_slider = Slider(self.ax_rough, 'R', 0.1, 2.0, valinit=self.curr_r, valstep=0.1)
+
+        self.reset_ax = self.fig.add_axes([0.4, 0.05, 0.2, 0.04])
+        self.reset_button = Button(self.reset_ax, 'Reset')
+        self.reset_button.on_clicked(self.reset)
+
+        # Регистрируем обработчики
+        self.n_slider.on_changed(self.update_iter)
+        self.r_slider.on_changed(self.update_rough)
+
+    def reset(self, event):
+        """Сброс к исходным параметрам"""
+        self.n_slider.set_val(self.initial_n)
+        self.r_slider.set_val(self.initial_r)
+
+        self.curr_n = self.initial_n
+        self.curr_r = self.initial_r
+        self.terrain = diamond_square(self.curr_n, self.curr_r)
+
+        self.update_image()
+
+    def update_terrain(self):
+        """Обновляем ландшафт на основе текущих параметров"""
+        new_n = self.n_slider.val
+        new_r = self.r_slider.val
+
+        if new_n > self.curr_n:
+            self.terrain = progressive_generate(self.terrain, new_n, new_r)
+        else:
+            self.terrain = diamond_square(new_n, new_r)
+
+        self.curr_n = new_n
+        self.curr_r = new_r
+        self.update_image()
+
+    def update_image(self):
+        """Обновление изображения без перегенерации карты"""
+        self.img.set_data(self.terrain)
+        self.img.set_extent([0, self.terrain.shape[1], 0, self.terrain.shape[0]])
+        self.img.set_clim(self.terrain.min(), self.terrain.max())
+        self.ax.set_xlim(0, self.terrain.shape[1])
+        self.ax.set_ylim(0, self.terrain.shape[0])
+        self.fig.canvas.draw_idle()
+
+    def update_iter(self, val):
+        """Обработчик изменения детализации"""
+        self.update_terrain()
+
+    def update_rough(self, val):
+        """Обработчик изменения шероховатости"""
+        self.update_terrain()
 
 
-iter_slider.on_changed(update)
-rough_slider.on_changed(update)
-
-plt.show()
+if __name__ == "__main__":
+    app = DiamondSquareApp()
+    show()
