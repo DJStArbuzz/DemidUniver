@@ -109,29 +109,29 @@ class DiamondSquareApp:
         self.curr_r = self.initial_r
         self.terrain = diamond_square(self.curr_n, self.curr_r)
 
-        self.img = self.ax.imshow(self.terrain, cmap='terrain', extent=[0, self.terrain.shape[1], 0, self.terrain.shape[0]])
+        self.img = self.ax.imshow(self.terrain, cmap='terrain', extent=[0, self.terrain.shape[1], 0,
+                                                                        self.terrain.shape[0]])
         self.ax.set_title('Diamond-Square')
         self.ax.set_aspect('equal')
 
-        # Создаем слайдеры
-        self.ax_iter = self.fig.add_axes([0.2, 0.2, 0.6, 0.03])
-        self.n_slider = Slider(
-            self.ax_iter, 'N', 1, 10,
-            valinit=self.curr_n, valstep=1
-        )
+        self.ax_n = self.fig.add_axes([0.2, 0.2, 0.6, 0.03])
+        self.n_slider = Slider(self.ax_n, 'N', 1, 10, valinit=self.curr_n, valstep=1)
 
-        self.ax_rough = self.fig.add_axes([0.2, 0.15, 0.6, 0.03])
-        self.r_slider = Slider(self.ax_rough, 'R', 0.1, 2.0, valinit=self.curr_r, valstep=0.1)
+        self.ax_r = self.fig.add_axes([0.2, 0.15, 0.6, 0.03])
+        self.r_slider = Slider(self.ax_r, 'R', 0.1, 2.0, valinit=self.curr_r, valstep=0.1)
 
-        self.reset_ax = self.fig.add_axes([0.4, 0.05, 0.2, 0.04])
+        self.reset_ax = self.fig.add_axes([0.2, 0.05, 0.1, 0.04])
         self.reset_button = Button(self.reset_ax, 'Reset')
         self.reset_button.on_clicked(self.reset)
 
-        # Регистрируем обработчики
+        self.save_ax = self.fig.add_axes([0.35, 0.05, 0.1, 0.04])
+        self.save_button = Button(self.save_ax, 'Save')
+        self.save_button.on_clicked(self.save)
+
         self.n_slider.on_changed(self.update_iter)
         self.r_slider.on_changed(self.update_rough)
 
-    def reset(self, event):
+    def reset(self):
         """Сброс к исходным параметрам"""
         self.n_slider.set_val(self.initial_n)
         self.r_slider.set_val(self.initial_r)
@@ -141,6 +141,12 @@ class DiamondSquareApp:
         self.terrain = diamond_square(self.curr_n, self.curr_r)
 
         self.update_image()
+
+    def save(self):
+        """Сохранение текущего сценария фрактала"""
+        filename = f"diamond-square_with_{self.curr_n}_{self.curr_r:.2f}.jpg"
+        plt.savefig(filename, dpi=300, bbox_inches='tight', format='jpeg')
+        print(f"Изображение сохранено как {filename}")
 
     def update_terrain(self):
         """Обновляем ландшафт на основе текущих параметров"""
@@ -157,7 +163,7 @@ class DiamondSquareApp:
         self.update_image()
 
     def update_image(self):
-        """Обновление изображения без перегенерации карты"""
+        """Обновление изображения без повторной генерации карты"""
         self.img.set_data(self.terrain)
         self.img.set_extent([0, self.terrain.shape[1], 0, self.terrain.shape[0]])
         self.img.set_clim(self.terrain.min(), self.terrain.max())
