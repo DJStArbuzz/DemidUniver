@@ -1,144 +1,143 @@
-import pygame
 import random
-import sys
-
-# Инициализация графики
-pygame.init()
-screen_width, screen_height = 1280, 720
-display_surface = pygame.display.set_mode((screen_width, screen_height))
-pygame.display.set_caption("Бесконечный скроллинг ландшафта")
-
-# Цветовая схема
-BACKGROUND_COLOR = (28, 33, 39)  # Темный фон
-PATH_COLOR = (76, 175, 80)  # Зеленый путь
-TEXT_COLOR = (240, 240, 240)  # Светлый текст
-
-# Параметры генерации
-BASE_HEIGHT = screen_height // 2
-INITIAL_SEGMENT = 200
-MAX_ITERATIONS = 5
-SCROLL_SPEEDS = [1, 3, 5, 10]
+import matplotlib.pyplot as plt
+import math
 
 
-class InfiniteLandscape:
-    def __init__(self):
-        self.points = []
-        self.roughness = 0.5
-        self.scroll_speed = 2  # Индекс в SCROLL_SPEEDS
-        self.offset_x = 0
-        self._generate_initial()
-
-    def _generate_initial(self):
-        # Генерация начального сегмента
-        start = (0, BASE_HEIGHT)
-        end = (INITIAL_SEGMENT, BASE_HEIGHT)
-        self.points = self._process_segment([start, end])
-
-    def _midpoint_displacement(self, points):
-        # Алгоритм смещения средней точки
-        new_points = []
-        for i in range(len(points) - 1):
-            left = points[i]
-            right = points[i + 1]
-
-            mid_x = (left[0] + right[0]) // 2
-            mid_y = (left[1] + right[1]) // 2
-            displacement = random.uniform(-1, 1) * self.roughness * 50
-            new_points.extend([left, (mid_x, mid_y + displacement)])
-
-        new_points.append(points[-1])
-        return new_points
-
-    def _process_segment(self, segment):
-        # Обработка сегмента за несколько итераций
-        processed = segment.copy()
-        for _ in range(MAX_ITERATIONS):
-            processed = self._midpoint_displacement(processed)
-        return processed
-
-    def update(self):
-        # Обновление позиций и генерация новых сегментов
-        speed = SCROLL_SPEEDS[self.scroll_speed]
-        self.offset_x += speed
-
-        # Сдвиг всех точек
-        self.points = [(x - speed, y) for x, y in self.points]
-
-        # Удаление невидимых точек
-        self.points = [p for p in self.points if p[0] > -INITIAL_SEGMENT]
-
-        # Генерация новых сегментов
-        while self.points[-1][0] < screen_width + INITIAL_SEGMENT:
-            last_x = self.points[-1][0]
-            new_end = (last_x + INITIAL_SEGMENT, BASE_HEIGHT)
-            new_segment = self._process_segment([self.points[-1], new_end])
-            self.points.extend(new_segment[1:])
-
-    def render(self, surface):
-        # Отрисовка ландшафта
-        if len(self.points) >= 2:
-            pygame.draw.lines(surface, PATH_COLOR, False, self.points, 3)
+def show():
+    """Отображение графика."""
+    plt.show()
 
 
-def create_info_panel(landscape, font):
-    # Создание информационной панели
-    lines = [
-        f"Шероховатость: {landscape.roughness:.2f}",
-        f"Скорость: {SCROLL_SPEEDS[landscape.scroll_speed]} px/кадр",
-    ]
+class TerrainGenerator:
+    def __init__(self, start: tuple = (0, 0), end: tuple = (50, 0),
+                 iterations: int = 10, roughness: float = 1.5):
+        self.start = (start[0], random.uniform(-10, 10))
+        self.end = (end[0], random.uniform(-10, 10))
+        self.iterations = iterations
+        self.roughness = roughness
+        self.line_color = 'blue'
+        self.fill_color = 'lightblue'
 
-    rendered = []
-    for line in lines:
-        text = font.render(line, True, TEXT_COLOR)
-        rendered.append(text)
+        self.current_terrain = self.midpoint_displacement(
+            self.start, self.end, self.iterations, self.roughness
+        )
 
-    return rendered
+        self.fig, self.ax = plt.subplots(figsize=(12, 6))
+        self.line, = self.ax.plot([], [], color=self.line_color, linewidth=0.8)
+        self.fill = None
+        self.update_title()
 
+        self.fig.canvas.mpl_connect('key_press_event', self.handle_key)
+        self.update_plot()
+        self.ax.set_xlim(self.start[0], self.end[0])
 
-def main():
-    clock = pygame.time.Clock()
-    landscape = InfiniteLandscape()
-    ui_font = pygame.font.Font(None, 32)
-    running = True
+    def update_title(self):
+        """Обновление заголовка с текущими параметрами"""
+        self.ax.set_title(
+            f"Midpoint Displacement\n"
+            f"Шероховатость: {self.roughness:.1f} (Up/Down)"
+)
 
-    while running:
-        # Обработка событий
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                running = False
+    @staticmethod
+    def midpoint_displacement(start: tuple, end: tuple,
+                              iterations: int, roughness: float) -> list:
+        """Генерация ландшафта с использованием алгоритма midpoint displacement."""
+        points = [start, end]
 
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_ESCAPE:
-                    running = False
-                elif event.key == pygame.K_UP:
-                    landscape.roughness = min(landscape.roughness + 0.1, 1.5)
-                elif event.key == pygame.K_DOWN:
-                    landscape.roughness = max(landscape.roughness - 0.1, 0.1)
-                elif event.key == pygame.K_LEFT:
-                    landscape.scroll_speed = max(landscape.scroll_speed - 1, 0)
-                elif event.key == pygame.K_RIGHT:
-                    landscape.scroll_speed = min(landscape.scroll_speed + 1, len(SCROLL_SPEEDS) - 1)
-                elif event.key == pygame.K_r:
-                    landscape = InfiniteLandscape()
+        for _ in range(iterations):
+            new_points = []
+            for i in range(len(points) - 1):
+                # Вычисление средней точки
+                new_x = (points[i][0] + points[i + 1][0]) / 2
+                new_y = (points[i][1] + points[i + 1][1]) / 2
 
-        # Обновление и отрисовка
-        landscape.update()
-        display_surface.fill(BACKGROUND_COLOR)
-        landscape.render(display_surface)
+                # Вычисление диапазона смещения
+                segment_length = math.sqrt(
+                    (points[i][0] - points[i + 1][0]) ** 2 +
+                    (points[i][1] - points[i + 1][1]) ** 2
+                )
+                displacement_range = segment_length / (2 ** roughness)
 
-        # Отображение информации
-        info = create_info_panel(landscape, ui_font)
-        y_pos = 20
-        for text_surface in info:
-            display_surface.blit(text_surface, (20, y_pos))
-            y_pos += text_surface.get_height() + 8
+                new_point = (new_x, new_y + random.uniform(-displacement_range, displacement_range))
 
-        pygame.display.flip()
-        clock.tick(60)
+                new_points.append(points[i])
+                new_points.append(new_point)
 
-    pygame.quit()
-    sys.exit()
+            new_points.append(points[-1])
+            points = new_points
+
+        return points
+
+    def update_plot(self):
+        """Обновление графика с текущим состоянием ландшафта."""
+        x = [p[0] for p in self.current_terrain]
+        y = [p[1] for p in self.current_terrain]
+        min_y = min(y) if y else 0
+
+        self.line.set_data(x, y)
+
+        # Удаление предыдущей заливки и создание новой
+        if self.fill:
+            self.fill.remove()
+        self.fill = self.ax.fill_between(
+            x, y, min_y - 0.1, color=self.fill_color, alpha=0.3
+        )
+
+        self.fig.canvas.draw()
+
+    def handle_key(self, event):
+        """Обработка нажатий клавиш для управления ландшафтом."""
+        x_min, x_max = self.ax.get_xlim()
+        view_width = x_max - x_min
+        delta = view_width * 0.05
+        print(self.roughness)
+        if event.key == 'left':
+            # Расширение влево
+            left_end = self.current_terrain[0]
+            displacement_range = abs(left_end[0] - (left_end[0] - delta))
+            new_start = (
+                left_end[0] - delta,
+                left_end[1] + random.uniform(-displacement_range, displacement_range)
+            )
+            new_segment = self.midpoint_displacement(
+                new_start, left_end, self.iterations, self.roughness
+            )[:-1]
+            self.current_terrain = new_segment + self.current_terrain
+            self.ax.set_xlim(x_min - delta, x_max - delta)
+
+        elif event.key == 'right':
+            # Расширение вправо
+            right_end = self.current_terrain[-1]
+            displacement_range = abs(right_end[0] - (right_end[0] + delta))
+            new_end = (
+                right_end[0] + delta,
+                right_end[1] + random.uniform(-displacement_range, displacement_range)
+            )
+            new_segment = self.midpoint_displacement(
+                right_end, new_end, self.iterations, self.roughness
+            )[1:]
+            self.current_terrain += new_segment
+            self.ax.set_xlim(x_min + delta, x_max + delta)
+
+        elif event.key == 'up':
+            # Увеличение шероховатости
+            self.roughness = min(self.roughness + 0.1, 2.5)
+            self.update_title()
+
+        elif event.key == 'down':
+            # Уменьшение шероховатости
+            self.roughness = max(self.roughness - 0.1, 0.1)
+            self.update_title()
+
+        self.update_plot()
 
 
 if __name__ == "__main__":
-    main()
+    # Создание и запуск генератора ландшафта
+    generator = TerrainGenerator(
+        start=(0, 0),
+        end=(50, 0),
+        iterations=10,
+        roughness=1.5
+    )
+    show()
