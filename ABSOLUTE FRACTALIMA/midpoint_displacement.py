@@ -35,14 +35,13 @@ class TerrainGenerator:
         """Обновление заголовка с текущими параметрами"""
         self.ax.set_title(
             f"Midpoint Displacement\n"
-            f"Шероховатость: {self.roughness:.1f} (Up/Down)"
-)
+            f"Шероховатость: {self.roughness:.1f} (Up/Down)")
 
     @staticmethod
-    def midpoint_displacement(start: tuple, end: tuple,
+    def midpoint_displacement(begin: tuple, end: tuple,
                               iterations: int, roughness: float) -> list:
         """Генерация ландшафта с использованием алгоритма midpoint displacement."""
-        points = [start, end]
+        points = [begin, end]
 
         for _ in range(iterations):
             new_points = []
@@ -65,7 +64,6 @@ class TerrainGenerator:
 
             new_points.append(points[-1])
             points = new_points
-
         return points
 
     def update_plot(self):
@@ -90,28 +88,13 @@ class TerrainGenerator:
         x_min, x_max = self.ax.get_xlim()
         view_width = x_max - x_min
         delta = view_width * 0.05
-        print(self.roughness)
-        if event.key == 'left':
-            # Расширение влево
-            left_end = self.current_terrain[0]
-            displacement_range = abs(left_end[0] - (left_end[0] - delta))
-            new_start = (
-                left_end[0] - delta,
-                left_end[1] + random.uniform(-displacement_range, displacement_range)
-            )
-            new_segment = self.midpoint_displacement(
-                new_start, left_end, self.iterations, self.roughness
-            )[:-1]
-            self.current_terrain = new_segment + self.current_terrain
-            self.ax.set_xlim(x_min - delta, x_max - delta)
 
-        elif event.key == 'right':
+        if event.key == 'right':
             # Расширение вправо
             right_end = self.current_terrain[-1]
-            displacement_range = abs(right_end[0] - (right_end[0] + delta))
             new_end = (
                 right_end[0] + delta,
-                right_end[1] + random.uniform(-displacement_range, displacement_range)
+                right_end[1] + random.uniform(-delta, delta)
             )
             new_segment = self.midpoint_displacement(
                 right_end, new_end, self.iterations, self.roughness
