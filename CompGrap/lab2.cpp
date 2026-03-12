@@ -116,7 +116,6 @@ void rotationAroundPointMatrix(float angleDeg, float x0, float y0, float mat[3][
     multiplyMatrices(temp, t2, mat);
 }
 
-// Применение преобразования ко всем фигурам
 void applyTransform(vector<Figure>& figures, const float mat[3][3]) {
     for (auto& fig : figures) {
         for (auto& p : fig.points) {
@@ -125,7 +124,6 @@ void applyTransform(vector<Figure>& figures, const float mat[3][3]) {
     }
 
 #ifdef DEBUG_BBOX
-    // Вычисляем ограничивающий прямоугольник всех фигур
     float minX = numeric_limits<float>::max();
     float minY = numeric_limits<float>::max();
     float maxX = -numeric_limits<float>::max();
@@ -143,7 +141,6 @@ void applyTransform(vector<Figure>& figures, const float mat[3][3]) {
 #endif
 }
 
-// Создание исходных фигур
 vector<Figure> createOriginalFigures() {
     vector<Figure> figs;
 
@@ -207,7 +204,7 @@ int main() {
     window.setFramerateLimit(60);
 
     vector<Figure> originalFigs = createOriginalFigures();
-    vector<Figure> figures = originalFigs;
+    vector<Figure> figure = originalFigs;
     Font font;
     bool fontLoaded = false;
     vector<string> fontPaths = {
@@ -226,10 +223,6 @@ int main() {
     }
     if (!font.loadFromFile("C:\\fonts\\Miroslav.ttf")) {
         cerr << "Шрифт не загружен, текст не отобразится\n";
-    }
-
-    if (!fontLoaded) {
-        cerr << "Предупреждение: не удалось загрузить шрифт. Текст кнопок не будет отображаться.\n";
     }
 
     vector<Button> buttons;
@@ -251,7 +244,7 @@ int main() {
         cin >> dx;
         float mat[3][3];
         translationMatrix(dx, 0, mat);
-        applyTransform(figures, mat);
+        applyTransform(figure, mat);
         });
 
     addButton("Sdvig OU", [&]() {
@@ -260,25 +253,25 @@ int main() {
         cin >> dy;
         float mat[3][3];
         translationMatrix(0, dy, mat);
-        applyTransform(figures, mat);
+        applyTransform(figure, mat);
         });
 
     addButton("Otra`enie OH", [&]() {
         float mat[3][3];
         reflectionOXMatrix(mat);
-        applyTransform(figures, mat);
+        applyTransform(figure, mat);
         });
 
     addButton("Otra`enie OU", [&]() {
         float mat[3][3];
         reflectionOYMatrix(mat);
-        applyTransform(figures, mat);
+        applyTransform(figure, mat);
         });
 
     addButton("Otra`enie H=U", [&]() {
         float mat[3][3];
         reflectionYXMatrix(mat);
-        applyTransform(figures, mat);
+        applyTransform(figure, mat);
         });
 
     addButton("Mass{tab", [&]() {
@@ -289,7 +282,7 @@ int main() {
         cin >> sy;
         float mat[3][3];
         scalingMatrix(sx, sy, mat);
-        applyTransform(figures, mat);
+        applyTransform(figure, mat);
         });
 
     addButton("Povorot (centr)", [&]() {
@@ -298,7 +291,7 @@ int main() {
         cin >> ang;
         float mat[3][3];
         rotationMatrix(ang, mat);
-        applyTransform(figures, mat);
+        applyTransform(figure, mat);
         });
 
     addButton("Povorot (to~ka)", [&]() {
@@ -311,11 +304,11 @@ int main() {
         cin >> ang;
         float mat[3][3];
         rotationAroundPointMatrix(ang, x0, y0, mat);
-        applyTransform(figures, mat);
+        applyTransform(figure, mat);
         });
 
     addButton("Sbros", [&]() {
-        figures = originalFigs;
+        figure = originalFigs;
         cout << "Сброс к исходному состоянию.\n";
         });
 
@@ -354,7 +347,7 @@ int main() {
         window.draw(axisY);
 
         // Фигура
-        for (const auto& fig : figures) {
+        for (const auto& fig : figure) {
             if (fig.points.size() < 2) continue;
             vector<Vertex> vertices;
             for (const auto& p : fig.points) {
@@ -362,7 +355,6 @@ int main() {
                 float sy = CENTER_Y - p.y(); 
                 vertices.push_back(Vertex(Vector2f(sx, sy), Color::Blue));
             }
-            // Контур для многоугольников
             if (fig.points.size() > 2) {
                 const auto& first = fig.points[0];
                 float sx = CENTER_X + first.x();
