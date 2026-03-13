@@ -51,11 +51,6 @@ Point multiplyMatrix(const Point& p, const float mat[3][3]) {
     float ny = x * mat[0][1] + y * mat[1][1] + w * mat[2][1];
     float nw = x * mat[0][2] + y * mat[1][2] + w * mat[2][2];
 
-     if (abs(nw) > 1e-6 && abs(nw - 1.0f) > 1e-6) {
-        nx /= nw;
-        ny /= nw;
-        nw = 1.0f;
-    }
     return Point(nx, ny, nw);
 }
 
