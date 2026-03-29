@@ -23,7 +23,7 @@ vector<Vector2i> bresenham(int xa, int ya, int xb, int yb) {
     while (true) {
         points.emplace_back(x, y);
 
-        if (x == xb && y == yb) 
+        if (x == xb && y == yb)
             break;
 
         int e2 = 2 * e1;
@@ -42,7 +42,7 @@ vector<Vector2i> bresenham(int xa, int ya, int xb, int yb) {
 
 int main() {
     int xa = -1, ya = 1;
-    int xb = -1, yb = ;
+    int xb = -1, yb = 8;
 
     auto pixels = bresenham(xa, ya, xb, yb);
 
@@ -63,7 +63,7 @@ int main() {
     minY -= padding;
     maxY += padding;
 
-    const int cellSize = 30;         
+    const int cellSize = 30;
     const int windowWidth = (maxX - minX + 1) * cellSize;
     const int windowHeight = (maxY - minY + 1) * cellSize;
 
@@ -72,7 +72,7 @@ int main() {
 
     auto toScreen = [&](int x, int y) -> Vector2f {
         float screenX = (x - minX) * cellSize;
-        float screenY = (maxY - y) * cellSize; 
+        float screenY = (maxY - y) * cellSize;
         return Vector2f(screenX, screenY);
         };
 
