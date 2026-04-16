@@ -10,9 +10,9 @@
 using namespace sf;
 using namespace std;
 
-struct Point2D {
+struct Point {
     float x, y;
-    Point2D(float x = 0, float y = 0) : x(x), y(y) {}
+    Point(float x = 0, float y = 0) : x(x), y(y) {}
 };
 
 struct MyRect {
@@ -21,7 +21,7 @@ struct MyRect {
         : xmin(xmin), ymin(ymin), xmax(xmax), ymax(ymax) {
     }
 
-    vector<Point2D> getVertices() const {
+    vector<Point> getVertices() const {
         return {
             {xmin, ymin},
             {xmax, ymin},
@@ -31,64 +31,77 @@ struct MyRect {
     }
 };
 
-float dot(const Point2D& a, const Point2D& b) {
+float dot(const Point& a, const Point& b) {
     return a.x * b.x + a.y * b.y;
 }
 
-Point2D operator-(const Point2D& a, const Point2D& b) {
+Point operator-(const Point& a, const Point& b) {
     return { a.x - b.x, a.y - b.y };
 }
-Point2D operator+(const Point2D& a, const Point2D& b) {
+Point operator+(const Point& a, const Point& b) {
     return { a.x + b.x, a.y + b.y };
 }
-Point2D operator*(float t, const Point2D& v) {
+Point operator*(float t, const Point& v) {
     return { t * v.x, t * v.y };
 }
 
-bool CyrusBeckClip(const vector<Point2D>& poly, Point2D p1, Point2D p2,
-    Point2D& outP1, Point2D& outP2) {
+bool CyrusBeckClip(const vector<Point>& poly, Point p1, Point p2, Point& outP1, Point& outP2) {
     int n = poly.size();
-    Point2D D = p2 - p1;
+    Point D = p2 - p1;
     float tE = 0.0f, tL = 1.0f;
     bool hasIntersection = false;
 
     for (int i = 0; i < n; ++i) {
-        Point2D E = poly[i];
-        Point2D E_next = poly[(i + 1) % n];
-        Point2D edge = E_next - E;
-        Point2D N = { edge.y, -edge.x }; 
+        Point E = poly[i];
+        Point E_next = poly[(i + 1) % n];
+        Point edge = E_next - E;
+        Point N = { edge.y, -edge.x };
+
         float len = hypot(N.x, N.y);
-        if (len > 1e-6) { N.x /= len; N.y /= len; }
+        if (len > 1e-6) 
+        { 
+            N.x /= len; 
+            N.y /= len; 
+        }
+
         float DdotN = dot(D, N);
         float WdotN = dot(p1 - E, N);
         if (fabs(DdotN) < 1e-6) {
             if (WdotN < -1e-5) return false;
             continue;
         }
+
         float t = -WdotN / DdotN;
         if (t >= 0.0f && t <= 1.0f) {
             hasIntersection = true;
-            if (DdotN < 0) { 
-                if (t > tE) 
+            if (DdotN < 0) {
+                if (t > tE)
                     tE = t;
             }
             else {
-                if (t < tL) 
+                if (t < tL)
                     tL = t;
             }
         }
     }
 
     if (!hasIntersection) {
-        auto inside = [&](Point2D pt) {
+        auto inside = [&](Point pt) {
             for (int i = 0; i < n; ++i) {
-                Point2D E = poly[i];
-                Point2D E_next = poly[(i + 1) % n];
-                Point2D edge = E_next - E;
-                Point2D N = { edge.y, -edge.x };
+                Point E = poly[i];
+                Point E_next = poly[(i + 1) % n];
+                Point edge = E_next - E;
+                Point N = { edge.y, -edge.x };
                 float len = hypot(N.x, N.y);
-                if (len > 1e-6) { N.x /= len; N.y /= len; }
-                if (dot(pt - E, N) > 1e-5) return false;
+
+                if (len > 1e-6) 
+                { 
+                    N.x /= len; 
+                    N.y /= len; 
+                }
+
+                if (dot(pt - E, N) > 1e-5) 
+                    return false;
             }
             return true;
             };
@@ -108,22 +121,29 @@ bool CyrusBeckClip(const vector<Point2D>& poly, Point2D p1, Point2D p2,
     return false;
 }
 
-vector<pair<Point2D, bool>> GetAllPotentialPoints(const vector<Point2D>& poly,
-    Point2D p1, Point2D p2) {
-    vector<pair<Point2D, bool>> res;
-    Point2D D = p2 - p1;
+vector<pair<Point, bool>> GetAllPotentialPoints(const vector<Point>& poly, Point p1, Point p2) {
+    vector<pair<Point, bool>> res;
+    Point D = p2 - p1;
     int n = poly.size();
+    
     for (int i = 0; i < n; ++i) {
-        Point2D E = poly[i];
-        Point2D E_next = poly[(i + 1) % n];
-        Point2D edge = E_next - E;
-        Point2D N = { edge.y, -edge.x };
+        Point E = poly[i];
+        Point E_next = poly[(i + 1) % n];
+        Point edge = E_next - E;
+        Point N = { edge.y, -edge.x };
         float len = hypot(N.x, N.y);
-        if (len > 1e-6) { N.x /= len; N.y /= len; }
+        if (len > 1e-6) 
+        {
+            N.x /= len; 
+            N.y /= len; 
+        }
+
         float DdotN = dot(D, N);
-        if (fabs(DdotN) < 1e-6) continue; 
+        if (fabs(DdotN) < 1e-6) 
+            continue;
+        
         float t = -dot(p1 - E, N) / DdotN;
-        Point2D pt = p1 + t * D;
+        Point pt = p1 + t * D;
         bool isEntry = (DdotN < 0);
         res.push_back({ pt, isEntry });
     }
@@ -152,7 +172,7 @@ int computeCode(float x, float y, const MyRect& rect) {
     return code;
 }
 
-bool Sutherland(Point2D& p1, Point2D& p2, const MyRect& rect) {
+bool Sutherland(Point& p1, Point& p2, const MyRect& rect) {
     int code1 = computeCode(p1.x, p1.y, rect);
     int code2 = computeCode(p2.x, p2.y, rect);
     bool accept = false;
@@ -195,7 +215,7 @@ bool isInside(float x, float y, const MyRect& rect) {
     return (x >= rect.xmin && x <= rect.xmax && y >= rect.ymin && y <= rect.ymax);
 }
 
-void Midpoint(Point2D a, Point2D b, const MyRect& rect, vector<Point2D>& out) {
+void Midpoint(Point a, Point b, const MyRect& rect, vector<Point>& out) {
     bool a_in = isInside(a.x, a.y, rect);
     bool b_in = isInside(b.x, b.y, rect);
     if (a_in && b_in) {
@@ -203,13 +223,13 @@ void Midpoint(Point2D a, Point2D b, const MyRect& rect, vector<Point2D>& out) {
         return;
     }
     if (hypot(a.x - b.x, a.y - b.y) < EPS) return;
-    Point2D mid = { (a.x + b.x) / 2, (a.y + b.y) / 2 };
+    Point mid = { (a.x + b.x) / 2, (a.y + b.y) / 2 };
     Midpoint(a, mid, rect, out);
     Midpoint(mid, b, rect, out);
 }
 
 
-bool readInput(const string& filename, MyRect& rect, Point2D& p1, Point2D& p2) {
+bool readInput(const string& filename, MyRect& rect, Point& p1, Point& p2) {
     ifstream file(filename);
     if (!file.is_open()) return false;
     string line;
@@ -286,13 +306,13 @@ int main() {
     window.setFramerateLimit(60);
 
     MyRect rect;
-    Point2D p1, p2;
+    Point p1, p2;
     if (!readInput("input.txt", rect, p1, p2)) {
         rect = MyRect(-300, -200, 300, 200);
         p1 = { -400,0 }; p2 = { 400,100 };
     }
 
-    vector<Point2D> verts = rect.getVertices();
+    vector<Point> verts = rect.getVertices();
     float minX = verts[0].x, maxX = verts[0].x;
     float minY = verts[0].y, maxY = verts[0].y;
     for (auto& v : verts) {
@@ -317,8 +337,8 @@ int main() {
 
     CoordConverter conv(window.getSize(), minX, maxX, minY, maxY);
 
-    Point2D clippedP1, clippedP2;
-    vector<Point2D> midPoints;
+    Point clippedP1, clippedP2;
+    vector<Point> midPoints;
     int algo = 1;
     bool visible = false;
 
@@ -341,7 +361,7 @@ int main() {
             potentials = GetAllPotentialPoints(rect.getVertices(), p1, p2);
         }
         else if (algo == 2) {
-            Point2D a = p1, b = p2;
+            Point a = p1, b = p2;
             visible = Sutherland(a, b, rect);
             if (visible) { clippedP1 = a; clippedP2 = b; }
         }
@@ -363,14 +383,14 @@ int main() {
         rectLines[4].color = Color::Blue;
         window.draw(rectLines);
 
-        auto tparam = [&](Point2D pt) -> float {
+        auto tparam = [&](Point pt) -> float {
             float dx = p2.x - p1.x, dy = p2.y - p1.y;
             if (fabs(dx) > fabs(dy)) return (pt.x - p1.x) / dx;
             else return (pt.y - p1.y) / dy;
             };
 
         if ((algo == 1 || algo == 2) && visible) {
-            Point2D entry = clippedP1, exit = clippedP2;
+            Point entry = clippedP1, exit = clippedP2;
             if (tparam(entry) > tparam(exit)) swap(entry, exit);
             float te = tparam(entry), tl = tparam(exit);
             if (te > 1e-6) {
