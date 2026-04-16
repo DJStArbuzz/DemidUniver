@@ -42,23 +42,37 @@ vector<Point> grahamHull(vector<Point> points, vector<vector<Point>>& steps) {
     if (points.size() < 3) return points;
 
     Point pivot = findPivot(points);
+    cout << "Pivot point: (" << pivot.x << ", " << pivot.y << ")\n";
+
     sort(points.begin(), points.end(), [&](const Point& a, const Point& b) {
         return compareAngle(pivot, a, b);
         });
+
+    cout << "Points after sorting:\n";
+    for (size_t i = 0; i < points.size(); ++i) {
+        cout << "  " << i << ": (" << points[i].x << ", " << points[i].y << ")" << endl;
+    }
 
     vector<Point> stack;
     stack.push_back(points[0]);
     stack.push_back(points[1]);
 
     steps.push_back(stack);
+    cout << "Initial stack: [" << stack[0].x << "," << stack[0].y << "] [" << stack[1].x << "," << stack[1].y << "]\n";
 
     for (size_t i = 2; i < points.size(); ++i) {
+        cout << "\nProcessing point " << i << ": (" << points[i].x << ", " << points[i].y << ")\n";
         while (stack.size() >= 2 && cross(stack[stack.size() - 2], stack.back(), points[i]) < 0) {
+            Point popped = stack.back();
             stack.pop_back();
+            cout << "  Popped (" << popped.x << ", " << popped.y << ") because right turn\n";
             steps.push_back(stack);
         }
         stack.push_back(points[i]);
         steps.push_back(stack);
+        cout << "  Stack now: ";
+        for (const auto& p : stack) cout << "(" << p.x << "," << p.y << ") ";
+        cout << endl;
     }
     return stack;
 }
@@ -73,25 +87,24 @@ int main() {
     vector<vector<Point>> steps;
     vector<Point> hull = grahamHull(points, steps);
 
-    RenderWindow window(VideoMode(800, 600), "17042026");
+    RenderWindow window(VideoMode(800, 600), "Graham's Algorithm – Convex Hull");
     window.setFramerateLimit(60);
 
-    Font font;
-    if (!font.loadFromFile("ofont.ru_Eastern Rhodopes.ttf")) {
-        cout << "Failed to load font. Check file path and name.\n";
-    }
-    else {
-        cout << "Font loaded successfully.\n";
+     Font font;
+    bool fontLoaded = font.loadFromFile("Мирослав Bold.ttf"); 
+    if (!fontLoaded) {
+        cout << "Font not loaded. Text will be hidden.\n";
     }
     Text stepText;
-    stepText.setFont(font);
-    stepText.setCharacterSize(18);
-    stepText.setFillColor(Color::White);
-    stepText.setPosition(10, 10);
+    if (fontLoaded) {
+        stepText.setFont(font);
+        stepText.setCharacterSize(18);
+        stepText.setFillColor(Color::White);
+        stepText.setPosition(10, 10);
+    }
 
     int currentStep = 0;
     bool animationFinished = false;
-
     Clock clock;
     const float stepDelay = 1.0f;
 
@@ -125,17 +138,22 @@ int main() {
 
         window.clear(Color::Black);
 
+        int windowHeight = window.getSize().y; 
         for (const auto& p : points) {
             CircleShape circle(5);
             circle.setFillColor(Color(150, 150, 150));
-            circle.setPosition(p.x - 5, p.y - 5);
+            float screenX = p.x;
+            float screenY = windowHeight - p.y;
+            circle.setPosition(screenX - 5, screenY - 5);
             window.draw(circle);
         }
 
         Point pivot = findPivot(const_cast<vector<Point>&>(points));
         CircleShape pivotCircle(6);
         pivotCircle.setFillColor(Color::Red);
-        pivotCircle.setPosition(pivot.x - 6, pivot.y - 6);
+        float pivotScreenX = pivot.x;
+        float pivotScreenY = windowHeight - pivot.y;
+        pivotCircle.setPosition(pivotScreenX - 6, pivotScreenY - 6);
         window.draw(pivotCircle);
 
         if (currentStep < (int)steps.size()) {
@@ -143,34 +161,28 @@ int main() {
             if (stack.size() >= 2) {
                 for (size_t i = 0; i < stack.size() - 1; ++i) {
                     Vertex line[] = {
-                        Vertex(Vector2f(stack[i].x, stack[i].y), Color::Green),
-                        Vertex(Vector2f(stack[i + 1].x, stack[i + 1].y), Color::Green)
+                        Vertex(Vector2f(stack[i].x, windowHeight - stack[i].y), Color::Green),
+                        Vertex(Vector2f(stack[i + 1].x, windowHeight - stack[i + 1].y), Color::Green)
                     };
                     window.draw(line, 2, Lines);
                 }
                 if (animationFinished && stack.size() == hull.size()) {
                     Vertex closeLine[] = {
-                        Vertex(Vector2f(stack.back().x, stack.back().y), Color::Yellow),
-                        Vertex(Vector2f(stack[0].x, stack[0].y), Color::Yellow)
+                        Vertex(Vector2f(stack.back().x, windowHeight - stack.back().y), Color::Yellow),
+                        Vertex(Vector2f(stack[0].x, windowHeight - stack[0].y), Color::Yellow)
                     };
                     window.draw(closeLine, 2, Lines);
                 }
             }
         }
 
-        stepText.setString("Step: " + to_string(currentStep + 1) + " / " + to_string(steps.size()) +
-            "\nSpace – next step, R – reset");
-        if (font.loadFromFile("ofont.ru_Eastern Rhodopes.ttf"))
-            window.draw(stepText);
-
         window.display();
     }
 
-    cout << "Convex hull vertices:" << "\n";
+    cout << "\nConvex hull vertices:\n";
     for (const auto& p : hull) {
-        cout << "(" << p.x << ", " << p.y << ")" << "\n";
+        cout << "(" << p.x << ", " << p.y << ")\n";
     }
-    cout << "Total animation steps: " << steps.size() << "\n";
 
     return 0;
 }
