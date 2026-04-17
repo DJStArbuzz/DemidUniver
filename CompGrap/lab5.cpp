@@ -19,11 +19,10 @@ vector<Point> vertices;
 size_t currentEdge;
 bool finished;
 
-void processEdge(size_t i) {
+void process(size_t i) {
     const Point& p1 = vertices[i];
     const Point& p2 = vertices[(i + 1) % vertices.size()];
-    if (p1.y == p2.y) 
-        return;
+    if (p1.y == p2.y) return;
 
     int y1 = p1.y, y2 = p2.y;
     int x1 = p1.x, x2 = p2.x;
@@ -35,9 +34,7 @@ void processEdge(size_t i) {
     int dx = x2 - x1;
 
     for (int y = y1; y <= y2; ++y) {
-        if (y < 0 || y >= height) 
-            continue;
-
+        if (y < 0 || y >= height) continue;
         double t = (dy == 0) ? 0.0 : static_cast<double>(y - y1) / dy;
         double x_edge_double = x1 + dx * t;
         int x_edge = static_cast<int>(round(x_edge_double));
@@ -55,9 +52,11 @@ void processEdge(size_t i) {
 void drawPolygonOutline(RenderWindow& window) {
     if (vertices.size() < 3) return;
     VertexArray lines(LineStrip);
-    for (const auto& p : vertices)
-        lines.append(Vertex(Vector2f(float(p.x), float(p.y)), Color::Red));
-    lines.append(Vertex(Vector2f(float(vertices[0].x), float(vertices[0].y)), Color::Red));
+    for (const auto& p : vertices) {
+        lines.append(Vertex(Vector2f(float(p.x), float(height - 1 - p.y)), Color::Red));
+    }
+    const Point& first = vertices[0];
+    lines.append(Vertex(Vector2f(float(first.x), float(height - 1 - first.y)), Color::Red));
     window.draw(lines);
 }
 
@@ -69,13 +68,12 @@ void clear() {
 }
 
 bool step() {
-    if (finished || vertices.empty()) 
-        return false;
+    if (finished || vertices.empty()) return false;
     if (currentEdge >= vertices.size()) {
         finished = true;
         return false;
     }
-    processEdge(currentEdge);
+    process(currentEdge);
     cout << "Processed edge " << currentEdge + 1 << " of " << vertices.size() << endl;
     ++currentEdge;
     if (currentEdge >= vertices.size()) {
@@ -92,10 +90,13 @@ void fillAll() {
 void render(RenderWindow& window) {
     Image image;
     image.create(width, height, Color::Black);
-    for (int y = 0; y < height; ++y)
-        for (int x = 0; x < width; ++x)
-            if (buffer[y][x])
-                image.setPixel(x, y, Color::Blue);
+    for (int y = 0; y < height; ++y) {
+        for (int x = 0; x < width; ++x) {
+            if (buffer[y][x]) {
+                image.setPixel(x, height - 1 - y, Color::Blue);
+            }
+        }
+    }
     Texture texture;
     texture.loadFromImage(image);
     Sprite sprite(texture);
@@ -105,7 +106,7 @@ void render(RenderWindow& window) {
 
     Vertex partitionLine[] = {
         Vertex(Vector2f(float(x_partition), 0.0f), Color::Green),
-        Vertex(Vector2f(float(x_partition), float(height)), Color::Green)
+        Vertex(Vector2f(float(x_partition), float(height - 1)), Color::Green)
     };
     window.draw(partitionLine, 2, Lines);
 }
