@@ -13,6 +13,11 @@ struct Point {
     bool operator==(const Point& other) const { return x == other.x && y == other.y; }
 };
 
+struct Edge {
+    Point a, b;
+    Edge(Point a_, Point b_) : a(a_), b(b_) {}
+};
+
 double cross(const Point& o, const Point& a, const Point& b) {
     return (a.x - o.x) * (b.y - o.y) - (a.y - o.y) * (b.x - o.x);
 }
@@ -38,7 +43,7 @@ bool compareAngle(const Point& pivot, const Point& a, const Point& b) {
     return distSq(pivot, a) < distSq(pivot, b);
 }
 
-vector<Point> grahamHull(vector<Point> points, vector<vector<Point>>& steps) {
+vector<Point> grahamHull(vector<Point> points, vector<vector<Point>>& steps, vector<vector<Edge>>& removedSteps) {
     if (points.size() < 3) return points;
 
     Point pivot = findPivot(points);
@@ -58,23 +63,53 @@ vector<Point> grahamHull(vector<Point> points, vector<vector<Point>>& steps) {
     stack.push_back(points[1]);
 
     steps.push_back(stack);
+    removedSteps.push_back(vector<Edge>());
+
     cout << "Initial stack: [" << stack[0].x << "," << stack[0].y << "] [" << stack[1].x << "," << stack[1].y << "]\n";
 
     for (size_t i = 2; i < points.size(); ++i) {
         cout << "\nProcessing point " << i << ": (" << points[i].x << ", " << points[i].y << ")\n";
+        vector<Edge> currentRemoved = removedSteps.back();
         while (stack.size() >= 2 && cross(stack[stack.size() - 2], stack.back(), points[i]) < 0) {
+            currentRemoved.push_back(Edge(stack[stack.size() - 2], stack.back()));
             Point popped = stack.back();
             stack.pop_back();
             cout << "  Popped (" << popped.x << ", " << popped.y << ") because right turn\n";
             steps.push_back(stack);
+            removedSteps.push_back(currentRemoved);
         }
         stack.push_back(points[i]);
         steps.push_back(stack);
+        removedSteps.push_back(currentRemoved);
         cout << "  Stack now: ";
         for (const auto& p : stack) cout << "(" << p.x << "," << p.y << ") ";
         cout << endl;
     }
     return stack;
+}
+
+void drawDashedLine(RenderWindow& window, const Point& p1, const Point& p2, Color color, int windowHeight,
+    float dashLen = 10.0f, float gapLen = 5.0f) {
+    Vector2f start(p1.x, windowHeight - p1.y);
+    Vector2f end(p2.x, windowHeight - p2.y);
+    Vector2f dir = end - start;
+    float length = sqrt(dir.x * dir.x + dir.y * dir.y);
+    if (length < 0.001f) return;
+    dir /= length;
+    float t = 0;
+    bool drawing = true;
+    while (t < length) {
+        float segLen = drawing ? dashLen : gapLen;
+        if (t + segLen > length) segLen = length - t;
+        Vertex line[2];
+        line[0].position = start + dir * t;
+        line[1].position = start + dir * (t + segLen);
+        line[0].color = color;
+        line[1].color = color;
+        window.draw(line, 2, Lines);
+        t += segLen;
+        drawing = !drawing;
+    }
 }
 
 int main() {
@@ -85,13 +120,14 @@ int main() {
     };
 
     vector<vector<Point>> steps;
-    vector<Point> hull = grahamHull(points, steps);
+    vector<vector<Edge>> removedSteps;
+    vector<Point> hull = grahamHull(points, steps, removedSteps);
 
     RenderWindow window(VideoMode(800, 600), "Graham's Algorithm – Convex Hull");
     window.setFramerateLimit(60);
 
-     Font font;
-    bool fontLoaded = font.loadFromFile("Мирослав Bold.ttf"); 
+    Font font;
+    bool fontLoaded = font.loadFromFile("Мирослав Bold.ttf");
     if (!fontLoaded) {
         cout << "Font not loaded. Text will be hidden.\n";
     }
@@ -137,8 +173,8 @@ int main() {
         }
 
         window.clear(Color::Black);
+        int windowHeight = window.getSize().y;
 
-        int windowHeight = window.getSize().y; 
         for (const auto& p : points) {
             CircleShape circle(5);
             circle.setFillColor(Color(150, 150, 150));
@@ -155,6 +191,12 @@ int main() {
         float pivotScreenY = windowHeight - pivot.y;
         pivotCircle.setPosition(pivotScreenX - 6, pivotScreenY - 6);
         window.draw(pivotCircle);
+
+        if (currentStep < (int)removedSteps.size()) {
+            for (const auto& e : removedSteps[currentStep]) {
+                drawDashedLine(window, e.a, e.b, Color(100, 100, 100), windowHeight, 8.0f, 4.0f);
+            }
+        }
 
         if (currentStep < (int)steps.size()) {
             const auto& stack = steps[currentStep];
@@ -174,6 +216,12 @@ int main() {
                     window.draw(closeLine, 2, Lines);
                 }
             }
+        }
+
+        if (fontLoaded) {
+            stepText.setString("Step: " + to_string(currentStep + 1) + " / " + to_string(steps.size()) +
+                "\nSpace – next, R – reset");
+            window.draw(stepText);
         }
 
         window.display();
