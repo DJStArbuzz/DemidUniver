@@ -33,8 +33,12 @@ void process(size_t i) {
     int dy = y2 - y1;
     int dx = x2 - x1;
 
-    for (int y = y1; y <= y2; ++y) {
-        if (y < 0 || y >= height) continue;
+    for (int y = y1; y < y2; ++y) {  
+        if (y < 0 || y >= height)
+        {
+            continue;
+        }
+
         double t = (dy == 0) ? 0.0 : static_cast<double>(y - y1) / dy;
         double x_edge_double = x1 + dx * t;
         int x_edge = static_cast<int>(round(x_edge_double));
