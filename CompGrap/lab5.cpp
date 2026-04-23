@@ -22,7 +22,10 @@ bool finished;
 void process(size_t i) {
     const Point& p1 = vertices[i];
     const Point& p2 = vertices[(i + 1) % vertices.size()];
-    if (p1.y == p2.y) return;
+    if (p1.y == p2.y)
+    {
+        return;
+    }
 
     int y1 = p1.y, y2 = p2.y;
     int x1 = p1.x, x2 = p2.x;
@@ -33,7 +36,7 @@ void process(size_t i) {
     int dy = y2 - y1;
     int dx = x2 - x1;
 
-    for (int y = y1; y < y2; ++y) {  
+    for (int y = y1; y < y2; ++y) {
         if (y < 0 || y >= height)
         {
             continue;
@@ -54,11 +57,17 @@ void process(size_t i) {
 }
 
 void drawPolygonOutline(RenderWindow& window) {
-    if (vertices.size() < 3) return;
+    if (vertices.size() < 3)
+    {
+        return;
+    }
+    
     VertexArray lines(LineStrip);
+    
     for (const auto& p : vertices) {
         lines.append(Vertex(Vector2f(float(p.x), float(height - 1 - p.y)), Color::Red));
     }
+    
     const Point& first = vertices[0];
     lines.append(Vertex(Vector2f(float(first.x), float(height - 1 - first.y)), Color::Red));
     window.draw(lines);
@@ -66,7 +75,9 @@ void drawPolygonOutline(RenderWindow& window) {
 
 void clear() {
     for (auto& row : buffer)
+    {
         fill(row.begin(), row.end(), false);
+    }
     currentEdge = 0;
     finished = false;
 }
@@ -108,11 +119,11 @@ void render(RenderWindow& window) {
 
     drawPolygonOutline(window);
 
-    Vertex partitionLine[] = {
-        Vertex(Vector2f(float(x_partition), 0.0f), Color::Green),
-        Vertex(Vector2f(float(x_partition), float(height - 1)), Color::Green)
-    };
-    window.draw(partitionLine, 2, Lines);
+    const float lineThickness = 3.0f;
+    RectangleShape partition(Vector2f(lineThickness, float(height)));
+    partition.setPosition(float(x_partition) - lineThickness / 2.0f, 0.0f);
+    partition.setFillColor(Color::Green);
+    window.draw(partition);
 }
 
 int main() {
