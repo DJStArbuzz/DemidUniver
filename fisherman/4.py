@@ -25,15 +25,34 @@ def find_fixed_points():
 
 # 3. Анализ типа особой точки (линеаризация)
 def analyze_fixed_point(x0, y0):
+    """
+    P = (x + y)^2 - 1 = 0
+    Q = -y^2-x+1
+    """
     a = 2.0 * (x0 + y0)      # dP/dx
     b = 2.0 * (x0 + y0)      # dP/dy
     c = -1.0                 # dQ/dx
     d = -2.0 * y0            # dQ/dy
+    """
+    I = (a b) tr = a + d
+        (c d) det = a * d - b * c
+    """
 
     trace = a + d
     det = a*d - b*c
     disc = trace*trace - 4*det
 
+    """
+    D>0, Δ>0, tr>0 неустойчивый узел
+    D>0, Δ>0, tr<0 устойчивый узел
+    D>0, Δ<0       седло
+    D<0, tr>0      неустойчивый фокус
+    D<0, tr<0      устойчивый фокус
+    D<0, tr=0      центр
+    
+    x^2 - tr * x + D = 0
+    x12 = (tr +- sqrt(tr^2 - 4D)) / 2
+    """
     if disc > 1e-12:
         l1 = (trace + np.sqrt(disc)) / 2.0
         l2 = (trace - np.sqrt(disc)) / 2.0
@@ -70,7 +89,7 @@ def rk4_step(f, t, y, h):
     k2 = np.asarray(f(t + h/2, y + h/2 * k1))
     k3 = np.asarray(f(t + h/2, y + h/2 * k2))
     k4 = np.asarray(f(t + h, y + h * k3))
-    return y + h/6 * (k1 + 2*k2 + 2*k3 + k4)
+    return y + h/6 * (k1 + 2*k2 + 2*k3 + k4) # k+1ый шаг
 
 def integrate_trajectory(x0, y0, t_max, h=0.05):
     t = 0.0
@@ -127,7 +146,7 @@ def plot_phase_portrait(point, eps=0.1, t_max=6.0, h=0.05):
 # 6. Основная программа
 def main():
     print("="*60)
-    print("Лабораторная работа №5. Вариант 12")
+    print("Лабораторная работа №4. Вариант 12")
     print("Система:")
     print("  dx/dt = (x+y)^2 - 1")
     print("  dy/dt = -y^2 - x + 1")
