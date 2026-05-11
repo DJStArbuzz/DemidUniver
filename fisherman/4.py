@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import sympy as sp
 
-# 1. Определение системы
+# 1. Определение системы (вариант 12)
 def P(x, y):
     """dx/dt = (x+y)^2 - 1"""
     return (x + y)**2 - 1.0
@@ -15,7 +15,7 @@ def system(t, state):
     x, y = state
     return np.array([P(x, y), Q(x, y)])
 
-# 2. Нахождение всех особых точек (аналитически через sympy)
+# 2. Нахождение особых точек (аналитически через sympy)
 def find_fixed_points():
     x, y = sp.symbols('x y')
     eq1 = (x + y)**2 - 1
@@ -25,34 +25,14 @@ def find_fixed_points():
 
 # 3. Анализ типа особой точки (линеаризация)
 def analyze_fixed_point(x0, y0):
-    """
-    P = (x + y)^2 - 1 = 0
-    Q = -y^2-x+1
-    """
-    a = 2.0 * (x0 + y0)      # dP/dx
-    b = 2.0 * (x0 + y0)      # dP/dy
-    c = -1.0                 # dQ/dx
-    d = -2.0 * y0            # dQ/dy
-    """
-    I = (a b) tr = a + d
-        (c d) det = a * d - b * c
-    """
-
+    a = 2.0 * (x0 + y0)   # dP/dx
+    b = 2.0 * (x0 + y0)   # dP/dy
+    c = -1.0              # dQ/dx
+    d = -2.0 * y0         # dQ/dy
     trace = a + d
     det = a*d - b*c
     disc = trace*trace - 4*det
 
-    """
-    D>0, Δ>0, tr>0 неустойчивый узел
-    D>0, Δ>0, tr<0 устойчивый узел
-    D>0, Δ<0       седло
-    D<0, tr>0      неустойчивый фокус
-    D<0, tr<0      устойчивый фокус
-    D<0, tr=0      центр
-    
-    x^2 - tr * x + D = 0
-    x12 = (tr +- sqrt(tr^2 - 4D)) / 2
-    """
     if disc > 1e-12:
         l1 = (trace + np.sqrt(disc)) / 2.0
         l2 = (trace - np.sqrt(disc)) / 2.0
@@ -82,16 +62,24 @@ def analyze_fixed_point(x0, y0):
         else:
             return "устойчивый фокус"
 
-# 4. Численное интегрирование (Рунге-Кутта 4-го порядка)
-def rk4_step(f, t, y, h):
-    y = np.asarray(y)
-    k1 = np.asarray(f(t, y))
-    k2 = np.asarray(f(t + h/2, y + h/2 * k1))
-    k3 = np.asarray(f(t + h/2, y + h/2 * k2))
-    k4 = np.asarray(f(t + h, y + h * k3))
-    return y + h/6 * (k1 + 2*k2 + 2*k3 + k4) # k+1ый шаг
 
-def integrate_trajectory(x0, y0, t_max, h=0.05):
+# 4. Численное интегрирование – метод Рунге-Кутты
+def rk3_step(f, t, y, h):
+    """
+    Один шаг метода Рунге-Кутты
+    Q1 = h * f(t, y)
+    Q2 = h * f(t + h/2, y + Q1/2)
+    Q3 = h * f(t + h, y - Q1 + 2*Q2)
+    y_new = y + (Q1 + 4*Q2 + Q3)/6
+    y = (x, y)
+    """
+    y = np.asarray(y)
+    Q1 = h * np.asarray(f(t, y))
+    Q2 = h * np.asarray(f(t + h/2, y + Q1/2))
+    Q3 = h * np.asarray(f(t + h, y - Q1 + 2*Q2))
+    return y + (Q1 + 4*Q2 + Q3) / 6.0
+
+def integrate_trajectory(x0, y0, t_max, h=0.02):
     t = 0.0
     x, y = x0, y0
     ts = [t]
@@ -99,7 +87,7 @@ def integrate_trajectory(x0, y0, t_max, h=0.05):
     ys = [y]
     while t < t_max:
         state = np.array([x, y])
-        new_state = rk4_step(system, t, state, h)
+        new_state = rk3_step(system, t, state, h)
         x, y = new_state
         t += h
         if abs(x) > 100 or abs(y) > 100:
@@ -107,10 +95,12 @@ def integrate_trajectory(x0, y0, t_max, h=0.05):
         ts.append(t)
         xs.append(x)
         ys.append(y)
+    print(f"Траектория из ({x0},{y0}) закончилась в ({x:.4f}, {y:.4f})")
     return np.array(ts), np.array(xs), np.array(ys)
 
+
 # 5. Построение графиков для одной особой точки (4 траектории)
-def plot_phase_portrait(point, eps=0.1, t_max=6.0, h=0.05):
+def plot_phase_portrait(point, eps=0.1, t_max=6.0, h=0.02):
     x0, y0 = point
     initials = [
         (x0 + eps, y0, "вправо"),
@@ -124,8 +114,10 @@ def plot_phase_portrait(point, eps=0.1, t_max=6.0, h=0.05):
     for (ix, iy, label), color in zip(initials, colors):
         t, x, y = integrate_trajectory(ix, iy, t_max, h)
         plt.plot(x, y, lw=2, color=color, label=f'старт {label}')
-        plt.plot(x[0], y[0], 'o', color=color, markersize=6)   # начальная точка
-        plt.plot(x[-1], y[-1], 's', color=color, markersize=6) # конечная точка
+        # начальная точка – кружок
+        plt.plot(x[0], y[0], 'o', color=color, markersize=6)
+        # конечная точка – квадратик
+        plt.plot(x[-1], y[-1], 's', color=color, markersize=6)
 
     plt.plot(x0, y0, 'k*', markersize=12, label='Особая точка')
     plt.title(f"Особая точка ({x0}, {y0}) : {analyze_fixed_point(x0, y0)}")
@@ -146,10 +138,11 @@ def plot_phase_portrait(point, eps=0.1, t_max=6.0, h=0.05):
 # 6. Основная программа
 def main():
     print("="*60)
-    print("Лабораторная работа №4. Вариант 12")
+    print("Лабораторная работа №5. Вариант 12")
     print("Система:")
     print("  dx/dt = (x+y)^2 - 1")
     print("  dy/dt = -y^2 - x + 1")
+    print("Численный метод: Рунге-Кутта 3-го порядка (метод №3), h = 0.02")
     print("="*60 + "\n")
 
     points = find_fixed_points()
@@ -162,7 +155,7 @@ def main():
     for (x, y) in points:
         print(f"\n--- Особая точка ({x}, {y}) ---")
         print(f"Ожидаемый тип: {analyze_fixed_point(x, y)}")
-        plot_phase_portrait((x, y), eps=0.1, t_max=6.0, h=0.05)
+        plot_phase_portrait((x, y), eps=0.1, t_max=6.0, h=0.02)
         print("  Сгенерировано 4 траектории для этой точки.")
 
     print("\n" + "="*60)
