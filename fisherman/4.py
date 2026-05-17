@@ -2,7 +2,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 import sympy as sp
 
-# 1. Определение системы (вариант 12)
 def P(x, y):
     """dx/dt = (x+y)^2 - 1"""
     return (x + y)**2 - 1.0
@@ -15,7 +14,6 @@ def system(t, state):
     x, y = state
     return np.array([P(x, y), Q(x, y)])
 
-# 2. Нахождение особых точек (аналитически через sympy)
 def find_fixed_points():
     x, y = sp.symbols('x y')
     eq1 = (x + y)**2 - 1
@@ -23,7 +21,6 @@ def find_fixed_points():
     solutions = sp.solve([eq1, eq2], [x, y], real=True)
     return [(float(s[0]), float(s[1])) for s in solutions]
 
-# 3. Анализ типа особой точки (линеаризация)
 def analyze_fixed_point(x0, y0):
     a = 2.0 * (x0 + y0)   # dP/dx
     b = 2.0 * (x0 + y0)   # dP/dy
@@ -63,7 +60,6 @@ def analyze_fixed_point(x0, y0):
             return "устойчивый фокус"
 
 
-# 4. Численное интегрирование – метод Рунге-Кутты
 def rk3_step(f, t, y, h):
     """
     Один шаг метода Рунге-Кутты
@@ -99,7 +95,6 @@ def integrate_trajectory(x0, y0, t_max, h=0.02):
     return np.array(ts), np.array(xs), np.array(ys)
 
 
-# 5. Построение графиков для одной особой точки (4 траектории)
 def plot_phase_portrait(point, eps=0.1, t_max=6.0, h=0.02):
     x0, y0 = point
     initials = [
@@ -135,15 +130,12 @@ def plot_phase_portrait(point, eps=0.1, t_max=6.0, h=0.02):
     print(f"  График сохранён: {filename}")
     plt.show()
 
-# 6. Основная программа
 def main():
-    print("="*60)
     print("Лабораторная работа №5. Вариант 12")
     print("Система:")
     print("  dx/dt = (x+y)^2 - 1")
     print("  dy/dt = -y^2 - x + 1")
     print("Численный метод: Рунге-Кутта 3-го порядка (метод №3), h = 0.02")
-    print("="*60 + "\n")
 
     points = find_fixed_points()
     print("Особые точки и их тип (аналитически):")
@@ -153,15 +145,13 @@ def main():
     print()
 
     for (x, y) in points:
-        print(f"\n--- Особая точка ({x}, {y}) ---")
+        print(f"\nОсобая точка ({x}, {y})")
         print(f"Ожидаемый тип: {analyze_fixed_point(x, y)}")
         plot_phase_portrait((x, y), eps=0.1, t_max=6.0, h=0.02)
         print("  Сгенерировано 4 траектории для этой точки.")
 
-    print("\n" + "="*60)
     print("Численное интегрирование завершено. Все графики сохранены в PNG.")
     print("Аналитические выводы и численные результаты должны совпадать.")
-    print("="*60)
 
 if __name__ == "__main__":
     main()
